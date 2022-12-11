@@ -8,11 +8,19 @@
     <title>The Wonder-Ghost</title>
   </head>
   <body>
-    <canvas id="canvas" width="800" height="500"></canvas>
+    <div class="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
 
-    <script src="/js/sprite.js"></script>
-    <script src="/js/chars.js"></script>
-    <script src="/js/game.js"></script>
-    <script src="/js/index.js"></script>
+    <script src="./js/utils/constants.js"></script>
+
+    <script src="/js/classes/sprite.js"></script>
+    <!-- <script src="/js/classes/chars.js"></script> -->
+    <script src="./js/classes/game.js"></script>
+
+
+    <script src="/js/subclasses/background.js"></script>
+
+    <script src="./js/index.js"></script>
   </body>
 </html>
