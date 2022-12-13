@@ -33,13 +33,11 @@ class Game {
     this.interval = setInterval(() => {
       this.clear();
       this.draw();
-      this.player.draw();
+      this.player.charAnimations();
     }, 1000 / 60);
   }
 
   draw() {
-    // const imgBackground = new Image();
-    // imgBackground.src = "../../src/img/bg_space_seamless.png";
     this.ctx.drawImage(this.imgBackground, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     this.decorations.forEach((decoration) => {
       decoration.draw();

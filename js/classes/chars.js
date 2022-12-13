@@ -1,103 +1,78 @@
 class Chars {
   constructor(ctx) {
     this.ctx = ctx;
-    this.key = [];
     this.x = 60;
     this.y = CANVAS_HEIGHT - 140;
-    this.width = 101;
-    this.height = 96;
+    this.key = "";
+    this.initialState = 0;
+    this.state = () => this.initialState;
     this.image = new Image();
-    this.image.src = "../../src/img/player_takeHits.png";
-    this.initialFrameX = 7;
     this.finalFrames = 0;
     this.gameFrame = 0;
   }
+
+  charAnimations() {
+    this.draw();
+    this.animateFrames();
+    this.movement();
+  }
+
   draw() {
-    this.takeHits();
+    this.image.src = PLAYERDB[this.state()].src;
+    this.ctx.drawImage(
+      this.image,
+      PLAYERDB[this.state()].initialFrame * PLAYERDB[this.state()].width,
+      0,
+      PLAYERDB[this.state()].width,
+      PLAYERDB[this.state()].height,
+      this.x,
+      this.y,
+      PLAYERDB[this.state()].width,
+      PLAYERDB[this.state()].height
+    );
   }
 
-  attack() {
-    // width: 115, height: 93, stepFrames: 6
-    this.ctx.drawImage(this.image, this.initialFrameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height);
+  animateFrames() {
+    if (this.gameFrame % PLAYERDB[this.state()].stepFrames === 0) {
+      if (PLAYERDB[this.state()].initialFrame <= this.finalFrames) PLAYERDB[this.state()].initialFrame = PLAYERDB[this.state()].frameReset;
 
-    const stepFrames = 6;
-    if (this.gameFrame % stepFrames === 0) {
-      if (this.initialFrameX <= this.finalFrames) this.initialFrameX = 11;
-      this.initialFrameX--;
+      PLAYERDB[this.state()].initialFrame--;
     }
     this.gameFrame++;
   }
 
-  idle() {
-    // width: 67, height: 93, stepFrames: 9
-    this.ctx.drawImage(this.image, this.initialFrameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height);
-
-    const stepFrames = 9;
-    if (this.gameFrame % stepFrames === 0) {
-      if (this.initialFrameX <= this.finalFrames) this.initialFrameX = 6;
-      this.initialFrameX--;
+  movement() {
+    switch (this.key) {
+      case "ArrowRight":
+        this.initialState = 1;
+        this.x++;
+        break;
+      case "ArrowLeft":
+        this.initialState = 1;
+        this.x--;
+        break;
+      case "Control":
+        this.initialState = 2;
+        setTimeout(() => {
+          this.initialState = 0;
+          this.key = "";
+        }, 1200);
+        break;
+      default:
+        this.initialState = 0;
+        break;
     }
-    this.gameFrame++;
   }
 
-  run() {
-    // width: 77, height: 81, stepFrames: 7
-    this.ctx.drawImage(this.image, this.initialFrameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height);
+  attack() {}
 
-    const stepFrames = 7;
-    if (this.gameFrame % stepFrames === 0) {
-      if (this.initialFrameX <= this.finalFrames) this.initialFrameX = 6;
-      this.initialFrameX--;
-    }
-    this.gameFrame++;
-  }
+  idle() {}
 
-  shoot() {
-    // width: 116, height: 108, stepFrames: 10
-    this.ctx.drawImage(this.image, this.initialFrameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height);
+  run() {}
 
-    const stepFrames = 10;
-    if (this.gameFrame % stepFrames === 0) {
-      if (this.initialFrameX <= this.finalFrames) this.initialFrameX = 2;
-      this.initialFrameX--;
-    }
-    this.gameFrame++;
-  }
-  bomb() {
-    // width: 122, height: 134, stepFrames: 6
-    this.ctx.drawImage(this.image, this.initialFrameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height);
+  takeHits() {}
 
-    const stepFrames = 6;
-    if (this.gameFrame % stepFrames === 0) {
-      if (this.initialFrameX <= this.finalFrames) this.initialFrameX = 7;
-      this.initialFrameX--;
-    }
-    this.gameFrame++;
-  }
-
-  takeHits() {
-    // width: 101, height: 96, stepFrames: 5
-    this.ctx.drawImage(this.image, this.initialFrameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height);
-
-    const stepFrames = 5;
-    if (this.gameFrame % stepFrames === 0) {
-      if (this.initialFrameX <= this.finalFrames) this.initialFrameX = 7;
-      this.initialFrameX--;
-    }
-    this.gameFrame++;
-  }
-
-  dead() {
-    // width: 122, height: 96, stepFrames: 8
-    this.ctx.drawImage(this.image, this.initialFrameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height);
-
-    const stepFrames = 8;
-    if (this.gameFrame % stepFrames === 0) {
-      if (this.initialFrameX <= this.finalFrames) this.initialFrameX = 8;
-      this.initialFrameX--;
-    }
-    this.gameFrame++;
-  }
+  dead() {}
 
   onKeyEvent(event) {
     switch (event.type) {
@@ -109,7 +84,7 @@ class Chars {
           case "ArrowRight":
           case "Control":
           case " ":
-            this.key.push(event.key);
+            this.key = event.key;
             break;
         }
         break;
@@ -119,14 +94,11 @@ class Chars {
           case "ArrowDown":
           case "ArrowLeft":
           case "ArrowRight":
-          case "Control":
           case " ":
-            this.key.splice(event.key);
+            this.key = "";
             break;
         }
         break;
     }
-    // console.log(this.key);
-    // console.log(event.key);
   }
 }
