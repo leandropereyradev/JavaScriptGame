@@ -1,10 +1,12 @@
 class Game {
   constructor(ctx) {
     this.ctx = ctx;
-    this.interval = null;
-    this.player = new Chars(ctx);
     this.x = 0;
     this.y = 0;
+    this.interval = null;
+    this.player = new Chars(ctx);
+    this.monsters = [];
+    this.tick = 60 * 5;
 
     //Background
     this.imgBackground = new Image();
@@ -34,6 +36,10 @@ class Game {
       this.clear();
       this.draw();
       this.player.charAnimations();
+      this.monstersAppears();
+      this.monsters.forEach((monster) => {
+        monster.movement();
+      });
     }, 1000 / 60);
   }
 
@@ -43,10 +49,23 @@ class Game {
       decoration.draw();
       decoration.animate();
     });
+    this.monsters.forEach((monster) => monster.draw());
   }
 
   clear() {
     this.ctx.clearRect(this.x, this.y, CANVAS_WIDTH, CANVAS_HEIGHT);
+  }
+
+  monstersAppears() {
+    this.tick--;
+
+    if (this.tick <= 0) {
+      this.tick = Math.floor(Math.random() * 1500);
+      const monster = new Monsters(this.ctx);
+      console.log(this.tick)
+      this.monsters.push(monster);
+    }
+    this.monsters = this.monsters.filter((monster) => !monster.isMonsterOut);
   }
 
   pause() {}
