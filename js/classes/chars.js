@@ -2,19 +2,29 @@ class Chars {
   constructor(ctx) {
     this.ctx = ctx;
     this.x = 60;
-    this.y = CANVAS_HEIGHT - 140;
+    this.y = 0;
+    this.y0 = CANVAS_HEIGHT - 140;
     this.key = "";
     this.initialState = 0;
     this.state = () => this.initialState;
     this.image = new Image();
     this.finalFrames = 0;
     this.gameFrame = 0;
+
+    this.xVelocity = 5;
+
+    this.spiritBombs = [];
   }
 
   charAnimations() {
     this.draw();
     this.animateFrames();
     this.movement();
+    this.spiritBombs.forEach((bomb) => bomb.charAnimations());
+    this.spiritBombs.forEach((bomb) => bomb.move());
+    this.spiritBombs.filter((bomb) => {
+      if (bomb.xPosition > CANVAS_WIDTH) this.spiritBombs.splice(bomb);
+    });
   }
 
   draw() {
@@ -26,7 +36,7 @@ class Chars {
       PLAYERDB[this.state()].width,
       PLAYERDB[this.state()].height,
       this.x,
-      this.y,
+      this.y0,
       PLAYERDB[this.state()].width,
       PLAYERDB[this.state()].height
     );
@@ -45,26 +55,30 @@ class Chars {
     switch (this.key) {
       case "ArrowRight":
         this.initialState = 1;
-        this.x++;
+        this.x += this.xVelocity;
         break;
       case "ArrowLeft":
         this.initialState = 1;
-        this.x--;
+        this.x -= this.xVelocity;
         break;
       case "Control":
         this.initialState = 2;
         setTimeout(() => {
-          this.initialState = 0;
           this.key = "";
-        }, 1200);
+        }, 1000);
         break;
-      default:
+      case "":
         this.initialState = 0;
         break;
     }
   }
 
-  attack() {}
+  attack() {
+    const x = this.x + PLAYERDB[this.state()].width / 2;
+    const y = this.y0 - 20;
+    const spiritBomb = new SpiritBombs(this.ctx, x, y);
+    this.spiritBombs.push(spiritBomb);
+  }
 
   idle() {}
 
@@ -75,30 +89,34 @@ class Chars {
   dead() {}
 
   onKeyEvent(event) {
-    switch (event.type) {
-      case "keydown":
-        switch (event.key) {
-          case "ArrowUp":
-          case "ArrowDown":
-          case "ArrowLeft":
-          case "ArrowRight":
-          case "Control":
-          case " ":
-            this.key = event.key;
-            break;
-        }
-        break;
-      case "keyup":
-        switch (event.key) {
-          case "ArrowUp":
-          case "ArrowDown":
-          case "ArrowLeft":
-          case "ArrowRight":
-          case " ":
-            this.key = "";
-            break;
-        }
-        break;
+    if (event) {
+      switch (event.type) {
+        case "keydown":
+          switch (event.key) {
+            case "ArrowLeft":
+              this.key = event.key;
+              break;
+            case "ArrowRight":
+              this.key = event.key;
+              break;
+            case "Control":
+              this.key = event.key;
+              break;
+          }
+          break;
+        case "keyup":
+          switch (event.key) {
+            case "ArrowLeft":
+            case "ArrowRight":
+              this.key = "";
+              break;
+            case "Control":
+              setTimeout(() => {
+                this.attack();
+              }, 500);
+          }
+          break;
+      }
     }
   }
 }
