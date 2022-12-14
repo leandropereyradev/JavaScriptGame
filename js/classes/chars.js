@@ -3,6 +3,8 @@ class Chars {
     this.ctx = ctx;
     this.x = 60;
     this.y = 0;
+    this.width = 60
+    this.height = 90
     this.y0 = CANVAS_HEIGHT - 140;
     this.key = "";
     this.initialState = 0;

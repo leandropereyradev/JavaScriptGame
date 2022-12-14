@@ -7,6 +7,7 @@ class Game {
     this.player = new Chars(ctx);
     this.monsters = [];
     this.tick = 60 * 5;
+    this.count = 0;
 
     //Background
     this.imgBackground = new Image();
@@ -40,7 +41,9 @@ class Game {
       this.monsters.forEach((monster) => {
         monster.movement();
       });
+      this.checkCollisions();
     }, 1000 / 60);
+    console.log(this.player);
   }
 
   draw() {
@@ -50,6 +53,7 @@ class Game {
       decoration.animate();
     });
     this.monsters.forEach((monster) => monster.draw());
+    this.displayStatus();
   }
 
   clear() {
@@ -62,7 +66,6 @@ class Game {
     if (this.tick <= 0) {
       this.tick = Math.floor(Math.random() * 1500);
       const monster = new Monsters(this.ctx);
-      console.log(this.tick)
       this.monsters.push(monster);
     }
     this.monsters = this.monsters.filter((monster) => !monster.isMonsterOut);
@@ -70,9 +73,25 @@ class Game {
 
   pause() {}
 
-  addObstacles() {}
+  checkCollisions() {
+    const ghost = this.player;
+    this.monsters.forEach((monster) => {
+      const colX = ghost.x + ghost.width >= monster.xPosition && monster.xPosition + monster.width >= ghost.x;
+      const colY = monster.yPosition + monster.height >= ghost.y && monster.yPosition <= ghost.y + ghost.height;
 
-  checkCollisions() {}
+      if (ghost.x + ghost.width === monster.xPosition) {
+        console.log("choque");
+        this.count += 1;
+      }
+    });
+    console.log(this.count);
+  }
+
+  displayStatus() {
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "40px Helvetica";
+    this.ctx.fillText("Collisions: " + this.count, 20, 50);
+  }
 
   gameOver() {}
 }
