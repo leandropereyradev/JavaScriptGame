@@ -7,10 +7,10 @@ window.addEventListener("load", () => {
   game.start();
 
   document.addEventListener("keydown", (e) => {
-    game.player.onKeyEvent(e);
+    game.onKeyEvent(e);
   });
 
   document.addEventListener("keyup", (e) => {
-    game.player.onKeyEvent(e);
+    game.onKeyEvent(e);
   });
 });

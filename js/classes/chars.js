@@ -14,21 +14,12 @@ class Chars {
     this.gameFrame = 0;
 
     this.xVelocity = 5;
-
-    this.spiritBombs = [];
-    this.spiritBombInfo = 0;
   }
 
   charAnimations() {
     this.draw();
     this.animateFrames();
     this.movement();
-    this.spiritBombs.forEach((bomb) => {
-      bomb.bombAnimations();
-      bomb.move();
-      this.spiritBombInfo = bomb.xPosition + 0.5;
-    });
-    this.spiritBombs = this.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
   }
 
   draw() {
@@ -77,46 +68,9 @@ class Chars {
     }
   }
 
-  attack() {
-    const x = this.x + PLAYERDB[this.state()].width / 2;
-    const y = this.y0 - 20;
-    const spiritBomb = new SpiritBombs(this.ctx, x, y);
-    this.spiritBombs.push(spiritBomb);
-  }
-
   run() {}
 
   takeHits() {}
 
   dead() {}
-
-  onKeyEvent(event) {
-    if (event) {
-      switch (event.type) {
-        case "keydown":
-          switch (event.key) {
-            case "ArrowLeft":
-              this.key = event.key;
-              break;
-            case "ArrowRight":
-              this.key = event.key;
-              break;
-            case "Control":
-              this.key = event.key;
-              break;
-          }
-          break;
-        case "keyup":
-          switch (event.key) {
-            case "ArrowLeft":
-            case "ArrowRight":
-              this.key = "";
-              break;
-            case "Control":
-              this.attack();
-          }
-          break;
-      }
-    }
-  }
 }

@@ -4,13 +4,17 @@ class Game {
     this.x = 0;
     this.y = 0;
     this.interval = null;
+
     this.player = new Chars(ctx);
+    this.spiritBombs = [];
+
     this.monsters = [];
-    this.bats = [];
-    this.tickMonster = 60 * 5;
-    this.tickBat = 60;
     this.monstersKilled = 0;
+    this.tickMonster = 60 * 5;
+
+    this.bats = [];
     this.batFreed = 0;
+    this.tickBat = 60;
 
     //Background
     this.imgBackground = new Image();
@@ -41,6 +45,13 @@ class Game {
       this.draw();
 
       this.player.charAnimations();
+
+      this.spiritBombs.forEach((bomb) => {
+        bomb.bombAnimations();
+        bomb.move();
+        this.spiritBombInfo = bomb.xPosition + 0.5;
+      });
+      this.spiritBombs = this.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
 
       this.checkCollisionsMonsters();
 
@@ -79,6 +90,13 @@ class Game {
 
   clear() {
     this.ctx.clearRect(this.x, this.y, CANVAS_WIDTH, CANVAS_HEIGHT);
+  }
+
+  playerAttack() {
+    const x = this.player.x;
+    const y = this.player.y0 - 20;
+    const spiritBomb = new SpiritBombs(this.ctx, x, y);
+    this.spiritBombs.push(spiritBomb);
   }
 
   monstersAppears() {
@@ -127,49 +145,30 @@ class Game {
   }
 
   checkBombAndMonster() {
-    this.player.spiritBombs.forEach((bomb) => {
+    this.spiritBombs.forEach((bomb) => {
       this.monsters.forEach((monster) => {
-        if (monster.xPosition <= this.player.spiritBombInfo + 50 && monster.xPosition + monster.width >= this.player.spiritBombInfo) {
+        if (monster.xPosition <= bomb.xPosition + 50 && monster.xPosition + monster.width >= bomb.xPosition) {
           monster.isMonsterKilled = true;
           bomb.isSpiritBombCollided = true;
           this.monstersKilled += 1;
         }
         this.monsters = this.monsters.filter((monster) => !monster.isMonsterKilled);
-        this.player.spiritBombInfo = 0;
       });
     });
   }
 
   checkBombAndBat() {
-    this.player.spiritBombs.forEach((bomb) => {
+    this.spiritBombs.forEach((bomb) => {
       this.bats.forEach((bat) => {
-        if (bat.xPosition <= this.player.spiritBombInfo + 50 && bat.xPosition + bat.width >= this.player.spiritBombInfo) {
+        if (bat.xPosition <= bomb.xPosition + 50 && bat.xPosition + bat.width >= bomb.xPosition) {
           bat.isBatKilled = true;
           bomb.isSpiritBombCollided = true;
           this.batFreed += 1;
         }
         this.bats = this.bats.filter((bat) => !bat.isBatKilled);
-
-        this.player.spiritBombInfo = 0;
       });
     });
   }
-
-  // check() {
-  //   this.monsters.forEach((monster) => {
-  //     this.bats.forEach((bat) => {
-  //       if (monster.xPosition <= this.player.spiritBombInfo && monster.xPosition + monster.width >= this.player.spiritBombInfo) {
-  //         monster.isMonsterOut = true;
-  //         this.player.spiritBombs.forEach((bomb) => (bomb.isSpiritBombCollided = true));
-  //       } else if (bat.xPosition <= this.player.spiritBombInfo && bat.xPosition + bat.width >= this.player.spiritBombInfo) {
-  //         bat.isBatOut = true;
-  //         this.batFreed += 1;
-  //         this.player.spiritBombs.forEach((bomb) => (bomb.isSpiritBombCollided = true));
-  //       }
-  //       this.player.spiritBombInfo = 0;
-  //     });
-  //   });
-  // }
 
   displayStatus() {
     this.ctx.fillStyle = "white";
@@ -179,4 +178,34 @@ class Game {
   }
 
   gameOver() {}
+
+  onKeyEvent(event) {
+    if (event) {
+      switch (event.type) {
+        case "keydown":
+          switch (event.key) {
+            case "ArrowLeft":
+              this.player.key = event.key;
+              break;
+            case "ArrowRight":
+              this.player.key = event.key;
+              break;
+            case "Control":
+              this.player.key = event.key;
+              break;
+          }
+          break;
+        case "keyup":
+          switch (event.key) {
+            case "ArrowLeft":
+            case "ArrowRight":
+              this.player.key = "";
+              break;
+            case "Control":
+              this.playerAttack();
+          }
+          break;
+      }
+    }
+  }
 }
