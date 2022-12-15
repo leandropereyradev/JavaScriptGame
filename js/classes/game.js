@@ -94,7 +94,7 @@ class Game {
 
   playerAttack() {
     const x = this.player.x;
-    const y = this.player.y0 - 20;
+    const y = this.player.y - 20;
     const spiritBomb = new SpiritBombs(this.ctx, x, y);
     this.spiritBombs.push(spiritBomb);
   }
@@ -135,11 +135,13 @@ class Game {
 
   checkCollisionsMonsters() {
     this.monsters.forEach((monster) => {
-      const colX = this.player.x + this.player.width >= monster.xPosition && monster.xPosition + monster.width >= this.player.x;
-      const colY = monster.yFloor + monster.height >= this.player.y && monster.yFloor <= this.player.y + this.player.height;
+      const dx = monster.xPosition + monster.width / 2 - (this.player.x + this.player.width / 2);
+      const dy = monster.yFloor + monster.height / 2 - (this.player.y + this.player.height / 2);
+      const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (colX || colY) {
+      if (distance < monster.width / 2 + this.player.width / 2) {
         //Todo: Implementar que al chocar empuje al jugador y reste punto y vida
+        console.log("Player touched by the monster");
       }
     });
   }
@@ -193,10 +195,14 @@ class Game {
             case "Control":
               this.player.key = event.key;
               break;
+            case " ":
+              this.player.key = event.key;
+              break;
           }
           break;
         case "keyup":
           switch (event.key) {
+            case " ":
             case "ArrowLeft":
             case "ArrowRight":
               this.player.key = "";

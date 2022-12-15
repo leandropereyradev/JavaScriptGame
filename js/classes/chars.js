@@ -2,10 +2,9 @@ class Chars {
   constructor(ctx) {
     this.ctx = ctx;
     this.x = 60;
-    this.y = 0;
+    this.y = CANVAS_HEIGHT - 140;
     this.width = 60;
     this.height = 90;
-    this.y0 = CANVAS_HEIGHT - 140;
     this.key = "";
     this.initialState = 0;
     this.state = () => this.initialState;
@@ -13,7 +12,12 @@ class Chars {
     this.finalFrames = 0;
     this.gameFrame = 0;
 
+    this.lives = 5;
+
     this.xVelocity = 5;
+    this.speed = 0;
+    this.yVertical = 1;
+    this.gravity = 1;
   }
 
   charAnimations() {
@@ -31,7 +35,7 @@ class Chars {
       PLAYERDB[this.state()].width,
       PLAYERDB[this.state()].height,
       this.x,
-      this.y0,
+      this.y,
       PLAYERDB[this.state()].width,
       PLAYERDB[this.state()].height
     );
@@ -50,11 +54,11 @@ class Chars {
     switch (this.key) {
       case "ArrowRight":
         this.initialState = 1;
-        this.x += this.xVelocity;
+        this.speed = 5;
         break;
       case "ArrowLeft":
         this.initialState = 1;
-        this.x -= this.xVelocity;
+        this.speed = -5;
         break;
       case "Control":
         this.initialState = 2;
@@ -62,13 +66,35 @@ class Chars {
           this.key = "";
         }, 200);
         break;
+      case " ":
+        if (this.onFloor()) {
+          this.initialState = 0;
+          this.yVertical = -20;
+        }
+        break;
       case "":
         this.initialState = 0;
+        this.speed = 0;
         break;
+    }
+
+    this.x += this.speed;
+    this.y += this.yVertical;
+
+    if (!this.onFloor()) {
+      this.yVertical += this.gravity;
+    } else {
+      this.yVertical = 0;
+    }
+
+    if (this.y >= CANVAS_HEIGHT - 140) {
+      this.y = CANVAS_HEIGHT - 140;
     }
   }
 
-  run() {}
+  onFloor() {
+    return this.y >= CANVAS_HEIGHT - 140;
+  }
 
   takeHits() {}
 
