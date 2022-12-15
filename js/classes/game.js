@@ -6,8 +6,11 @@ class Game {
     this.interval = null;
     this.player = new Chars(ctx);
     this.monsters = [];
-    this.tick = 60 * 5;
-    this.count = 0;
+    this.bats = [];
+    this.tickMonster = 60 * 5;
+    this.tickBat = 60;
+    this.monstersKilled = 0;
+    this.batFreed = 0;
 
     //Background
     this.imgBackground = new Image();
@@ -36,23 +39,41 @@ class Game {
     this.interval = setInterval(() => {
       this.clear();
       this.draw();
+
       this.player.charAnimations();
+
+      this.checkCollisionsMonsters();
+
       this.monstersAppears();
+      this.checkBombAndMonster();
+
+      this.batsAppears();
+      this.checkBombAndBat();
+
       this.monsters.forEach((monster) => {
         monster.movement();
       });
-      this.checkCollisions();
-      this.checkBombAndMonster();
+
+      this.bats.forEach((bat) => {
+        bat.movement();
+      });
     }, 1000 / 60);
   }
 
   draw() {
     this.ctx.drawImage(this.imgBackground, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
     this.decorations.forEach((decoration) => {
       decoration.draw();
       decoration.animate();
     });
+
     this.monsters.forEach((monster) => monster.draw());
+
+    this.bats.forEach((bat) => {
+      bat.draw();
+    });
+
     this.displayStatus();
   }
 
@@ -61,41 +82,100 @@ class Game {
   }
 
   monstersAppears() {
-    this.tick--;
+    this.tickMonster--;
 
-    if (this.tick <= 0) {
-      this.tick = Math.floor(Math.random() * 1500);
+    if (this.tickMonster <= 0) {
+      this.tickMonster = Math.floor(Math.random() * 1500) + 200;
       const monster = new Monsters(this.ctx);
       this.monsters.push(monster);
     }
+
+    this.monsters.forEach((monster) => {
+      if (monster.xPosition === -monster.width) monster.isMonsterOut = true;
+    });
+
     this.monsters = this.monsters.filter((monster) => !monster.isMonsterOut);
+  }
+
+  batsAppears() {
+    this.tickBat--;
+
+    if (this.tickBat <= 0) {
+      this.tickBat = Math.floor(Math.random() * 800) + 300;
+
+      const bat = new Bats(this.ctx);
+      this.bats.push(bat);
+    }
+    this.bats.forEach((bat) => {
+      if (bat.xPosition === -bat.width) bat.isBatOut = true;
+    });
+
+    this.bats = this.bats.filter((bat) => bat.isBatOut === false);
   }
 
   pause() {}
 
-  checkCollisions() {
-    const ghost = this.player;
+  checkCollisionsMonsters() {
     this.monsters.forEach((monster) => {
-      if (ghost.x + ghost.width === monster.xPosition) {
-        this.count += 1;
+      const colX = this.player.x + this.player.width >= monster.xPosition && monster.xPosition + monster.width >= this.player.x;
+      const colY = monster.yFloor + monster.height >= this.player.y && monster.yFloor <= this.player.y + this.player.height;
+
+      if (colX || colY) {
+        //Todo: Implementar que al chocar empuje al jugador y reste punto y vida
       }
     });
   }
 
   checkBombAndMonster() {
-    this.monsters.forEach((monster) => {
-      if (monster.xPosition <= this.player.spiritBombInfo && monster.xPosition + monster.width >= this.player.spiritBombInfo) {
-        monster.isMonsterOut = true;
-        this.player.spiritBombs.forEach((bomb) => (bomb.isSpiritBombCollided = true));
+    this.player.spiritBombs.forEach((bomb) => {
+      this.monsters.forEach((monster) => {
+        if (monster.xPosition <= this.player.spiritBombInfo + 50 && monster.xPosition + monster.width >= this.player.spiritBombInfo) {
+          monster.isMonsterKilled = true;
+          bomb.isSpiritBombCollided = true;
+          this.monstersKilled += 1;
+        }
+        this.monsters = this.monsters.filter((monster) => !monster.isMonsterKilled);
         this.player.spiritBombInfo = 0;
-      }
+      });
     });
   }
+
+  checkBombAndBat() {
+    this.player.spiritBombs.forEach((bomb) => {
+      this.bats.forEach((bat) => {
+        if (bat.xPosition <= this.player.spiritBombInfo + 50 && bat.xPosition + bat.width >= this.player.spiritBombInfo) {
+          bat.isBatKilled = true;
+          bomb.isSpiritBombCollided = true;
+          this.batFreed += 1;
+        }
+        this.bats = this.bats.filter((bat) => !bat.isBatKilled);
+
+        this.player.spiritBombInfo = 0;
+      });
+    });
+  }
+
+  // check() {
+  //   this.monsters.forEach((monster) => {
+  //     this.bats.forEach((bat) => {
+  //       if (monster.xPosition <= this.player.spiritBombInfo && monster.xPosition + monster.width >= this.player.spiritBombInfo) {
+  //         monster.isMonsterOut = true;
+  //         this.player.spiritBombs.forEach((bomb) => (bomb.isSpiritBombCollided = true));
+  //       } else if (bat.xPosition <= this.player.spiritBombInfo && bat.xPosition + bat.width >= this.player.spiritBombInfo) {
+  //         bat.isBatOut = true;
+  //         this.batFreed += 1;
+  //         this.player.spiritBombs.forEach((bomb) => (bomb.isSpiritBombCollided = true));
+  //       }
+  //       this.player.spiritBombInfo = 0;
+  //     });
+  //   });
+  // }
 
   displayStatus() {
     this.ctx.fillStyle = "white";
     this.ctx.font = "40px Helvetica";
-    this.ctx.fillText("Collisions: " + this.count, 20, 50);
+    this.ctx.fillText("Monsters Killed: " + this.monstersKilled, 20, 50);
+    this.ctx.fillText("Bats Freed: " + this.batFreed, 20, 110);
   }
 
   gameOver() {}

@@ -69,7 +69,7 @@ class Chars {
         this.initialState = 2;
         setTimeout(() => {
           this.key = "";
-        }, 1000);
+        }, 200);
         break;
       case "":
         this.initialState = 0;
@@ -83,8 +83,6 @@ class Chars {
     const spiritBomb = new SpiritBombs(this.ctx, x, y);
     this.spiritBombs.push(spiritBomb);
   }
-
-  idle() {}
 
   run() {}
 
@@ -115,9 +113,7 @@ class Chars {
               this.key = "";
               break;
             case "Control":
-              setTimeout(() => {
-                this.attack();
-              }, 500);
+              this.attack();
           }
           break;
       }
