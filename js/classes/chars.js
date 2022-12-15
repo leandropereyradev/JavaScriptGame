@@ -3,8 +3,8 @@ class Chars {
     this.ctx = ctx;
     this.x = 60;
     this.y = 0;
-    this.width = 60
-    this.height = 90
+    this.width = 60;
+    this.height = 90;
     this.y0 = CANVAS_HEIGHT - 140;
     this.key = "";
     this.initialState = 0;
@@ -16,17 +16,19 @@ class Chars {
     this.xVelocity = 5;
 
     this.spiritBombs = [];
+    this.spiritBombInfo = 0;
   }
 
   charAnimations() {
     this.draw();
     this.animateFrames();
     this.movement();
-    this.spiritBombs.forEach((bomb) => bomb.charAnimations());
-    this.spiritBombs.forEach((bomb) => bomb.move());
-    this.spiritBombs.filter((bomb) => {
-      if (bomb.xPosition > CANVAS_WIDTH) this.spiritBombs.splice(bomb);
+    this.spiritBombs.forEach((bomb) => {
+      bomb.bombAnimations();
+      bomb.move();
+      this.spiritBombInfo = bomb.xPosition + 0.5;
     });
+    this.spiritBombs = this.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
   }
 
   draw() {

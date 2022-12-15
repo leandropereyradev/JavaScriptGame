@@ -11,9 +11,11 @@ class SpiritBombs {
     this.image = new Image();
     this.finalFrames = 0;
     this.gameFrame = 0;
+
+    this.isSpiritBombCollided = false;
   }
 
-  charAnimations() {
+  bombAnimations() {
     this.draw();
     this.animateFrames();
   }
@@ -44,5 +46,6 @@ class SpiritBombs {
 
   move() {
     this.xPosition += this.xVelocity;
+    if (this.xPosition > CANVAS_WIDTH) this.isSpiritBombCollided = true;
   }
 }

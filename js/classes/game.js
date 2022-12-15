@@ -42,8 +42,8 @@ class Game {
         monster.movement();
       });
       this.checkCollisions();
+      this.checkBombAndMonster();
     }, 1000 / 60);
-    console.log(this.player);
   }
 
   draw() {
@@ -76,15 +76,20 @@ class Game {
   checkCollisions() {
     const ghost = this.player;
     this.monsters.forEach((monster) => {
-      const colX = ghost.x + ghost.width >= monster.xPosition && monster.xPosition + monster.width >= ghost.x;
-      const colY = monster.yPosition + monster.height >= ghost.y && monster.yPosition <= ghost.y + ghost.height;
-
       if (ghost.x + ghost.width === monster.xPosition) {
-        console.log("choque");
         this.count += 1;
       }
     });
-    console.log(this.count);
+  }
+
+  checkBombAndMonster() {
+    this.monsters.forEach((monster) => {
+      if (monster.xPosition <= this.player.spiritBombInfo && monster.xPosition + monster.width >= this.player.spiritBombInfo) {
+        monster.isMonsterOut = true;
+        this.player.spiritBombs.forEach((bomb) => (bomb.isSpiritBombCollided = true));
+        this.player.spiritBombInfo = 0;
+      }
+    });
   }
 
   displayStatus() {
