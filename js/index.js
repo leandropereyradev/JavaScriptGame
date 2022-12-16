@@ -1,3 +1,5 @@
+import { Game } from "./classes/game.js";
+
 window.addEventListener("load", () => {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");

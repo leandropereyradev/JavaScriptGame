@@ -1,4 +1,6 @@
-class Background {
+import { CANVAS_WIDTH } from "../utils/constants.js";
+
+export class Background {
   constructor(ctx, x, y, imgSrc, backgroundSpeed, x2, width, infinity, right = false) {
     this.ctx = ctx;
     this.x = x;

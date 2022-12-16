@@ -1,4 +1,6 @@
-class Bats {
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
+
+export class Bats {
   constructor(ctx) {
     this.ctx = ctx;
     this.yFloor = CANVAS_HEIGHT - 110;

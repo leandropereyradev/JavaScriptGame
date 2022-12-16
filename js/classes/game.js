@@ -1,4 +1,11 @@
-class Game {
+import { Chars } from "./chars.js";
+import { Background } from "./background.js";
+import { SpiritBombs } from "./spiritBombs.js";
+import { Monsters } from "./monsters.js";
+import { Bats } from "./bats.js";
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
+
+export class Game {
   constructor(ctx) {
     this.ctx = ctx;
     this.x = 0;
@@ -93,7 +100,7 @@ class Game {
   }
 
   playerAttack() {
-    const x = this.player.x;
+    const x = this.player.x + 50;
     const y = this.player.y - 20;
     const spiritBomb = new SpiritBombs(this.ctx, x, y);
     this.spiritBombs.push(spiritBomb);
@@ -134,16 +141,29 @@ class Game {
   pause() {}
 
   checkCollisionsMonsters() {
-    this.monsters.forEach((monster) => {
-      const dx = monster.xPosition + monster.width / 2 - (this.player.x + this.player.width / 2);
-      const dy = monster.yFloor + monster.height / 2 - (this.player.y + this.player.height / 2);
-      const distance = Math.sqrt(dx * dx + dy * dy);
+    if (!this.player.isDone) {
+      this.monsters.forEach((monster) => {
+        const dx = monster.xPosition - this.player.x;
+        const dy = monster.yFloor - this.player.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < monster.width / 2 + this.player.width / 2) {
-        //Todo: Implementar que al chocar empuje al jugador y reste punto y vida
-        console.log("Player touched by the monster");
-      }
-    });
+        if (distance < monster.width / 2 + this.player.width / 2) {
+          //Todo: Implementar que al chocar empuje al jugador y reste punto y vida
+          console.log("Player touched by the monster");
+
+          if (!this.player.isDead && this.player.lives > 0) {
+            this.player.x -= 200;
+            // this.player.initialState = 4;
+
+            this.player.lives -= 1;
+            if (this.player.lives === 0) {
+              this.player.isDead = true;
+              this.player.initialState = 6;
+            }
+          }
+        }
+      });
+    }
   }
 
   checkBombAndMonster() {
@@ -174,9 +194,10 @@ class Game {
 
   displayStatus() {
     this.ctx.fillStyle = "white";
-    this.ctx.font = "40px Helvetica";
+    this.ctx.font = "20px Helvetica";
     this.ctx.fillText("Monsters Killed: " + this.monstersKilled, 20, 50);
-    this.ctx.fillText("Bats Freed: " + this.batFreed, 20, 110);
+    this.ctx.fillText("Bats Freed: " + this.batFreed, 20, 80);
+    this.ctx.fillText("Player lives: " + this.player.lives, 20, 110);
   }
 
   gameOver() {}
@@ -195,6 +216,9 @@ class Game {
             case "Control":
               this.player.key = event.key;
               break;
+            case "r":
+              this.player.key = event.key;
+              break;
             case " ":
               this.player.key = event.key;
               break;
@@ -208,7 +232,7 @@ class Game {
               this.player.key = "";
               break;
             case "Control":
-              this.playerAttack();
+              if (!this.player.isDone) this.playerAttack();
           }
           break;
       }

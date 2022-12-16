@@ -1,4 +1,7 @@
-class SpiritBombs {
+import { CANVAS_WIDTH } from "../utils/constants.js";
+import { PLAYERDB } from "../utils/playerDB.js";
+
+export class SpiritBombs {
   constructor(ctx, xPosition, yPosition) {
     this.ctx = ctx;
 
@@ -21,25 +24,25 @@ class SpiritBombs {
   }
 
   draw() {
-    this.image.src = PLAYERDB[4].src;
+    this.image.src = PLAYERDB[3].src;
     this.ctx.drawImage(
       this.image,
-      PLAYERDB[4].initialFrame * PLAYERDB[4].width,
+      PLAYERDB[3].initialFrame * PLAYERDB[3].width,
       0,
-      PLAYERDB[4].width,
-      PLAYERDB[4].height,
+      PLAYERDB[3].width,
+      PLAYERDB[3].height,
       this.xPosition,
       this.yPosition,
-      PLAYERDB[4].width,
-      PLAYERDB[4].height
+      PLAYERDB[3].widthSize,
+      PLAYERDB[3].heightSize
     );
   }
 
   animateFrames() {
-    if (this.gameFrame % PLAYERDB[4].stepFrames === 0) {
-      if (PLAYERDB[4].initialFrame <= this.finalFrames) PLAYERDB[4].initialFrame = PLAYERDB[4].frameReset;
+    if (this.gameFrame % PLAYERDB[3].stepFrames === 0) {
+      if (PLAYERDB[3].initialFrame <= this.finalFrames) PLAYERDB[3].initialFrame = PLAYERDB[3].frameReset;
 
-      PLAYERDB[4].initialFrame--;
+      PLAYERDB[3].initialFrame--;
     }
     this.gameFrame++;
   }
