@@ -1,17 +1,15 @@
 import { CANVAS_WIDTH } from "../utils/constants.js";
 import { PLAYERDB } from "../utils/playerDB.js";
+import { Sprite } from "./sprite.js";
 
-export class SpiritBombs {
+export class SpiritBombs extends Sprite{
   constructor(ctx, xPosition, yPosition) {
-    this.ctx = ctx;
+    super(ctx)
 
     this.xPosition = xPosition;
     this.yPosition = yPosition;
-    this.widthBomb = 50;
-    this.heigthBomb = 50;
     this.xVelocity = 10;
 
-    this.image = new Image();
     this.finalFrames = 0;
     this.gameFrame = 0;
 
@@ -24,11 +22,9 @@ export class SpiritBombs {
   }
 
   draw() {
-    this.image.src = PLAYERDB[3].src;
-    this.ctx.drawImage(
-      this.image,
+    super.draw(
+      PLAYERDB[3].src,
       PLAYERDB[3].initialFrame * PLAYERDB[3].width,
-      0,
       PLAYERDB[3].width,
       PLAYERDB[3].height,
       this.xPosition,

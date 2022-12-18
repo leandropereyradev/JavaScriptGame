@@ -100,8 +100,8 @@ export class Game {
   }
 
   playerAttack() {
-    const x = this.player.x + 50;
-    const y = this.player.y - 20;
+    const x = this.player.xPosition + 50;
+    const y = this.player.yPosition - 20;
     const spiritBomb = new SpiritBombs(this.ctx, x, y);
     this.spiritBombs.push(spiritBomb);
   }
@@ -143,8 +143,8 @@ export class Game {
   checkCollisionsMonsters() {
     if (!this.player.isDone) {
       this.monsters.forEach((monster) => {
-        const dx = monster.xPosition - this.player.x;
-        const dy = monster.yFloor - this.player.y;
+        const dx = monster.xPosition - this.player.xPosition - this.player.width / 2;
+        const dy = monster.yFloor - this.player.yPosition;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < monster.width / 2 + this.player.width / 2) {
@@ -152,7 +152,7 @@ export class Game {
           console.log("Player touched by the monster");
 
           if (!this.player.isDead && this.player.lives > 0) {
-            this.player.x -= 200;
+            this.player.xPosition -= 200;
             // this.player.initialState = 4;
 
             this.player.lives -= 1;
@@ -217,7 +217,7 @@ export class Game {
               this.player.key = event.key;
               break;
             case "r":
-              this.player.key = event.key;
+              if (this.player.isDone) this.player.key = event.key;
               break;
             case " ":
               this.player.key = event.key;

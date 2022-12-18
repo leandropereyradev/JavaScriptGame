@@ -1,19 +1,22 @@
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
 import { PLAYERDB } from "../utils/playerDB.js";
+import { Sprite } from "./sprite.js";
 
-export class Chars {
+export class Chars extends Sprite {
   constructor(ctx) {
+    super(ctx);
+
     this.ctx = ctx;
-    this.x = 60;
-    this.y = 0;
-    this.width = 60;
-    this.height = 90;
+    this.xPosition = 60;
+    this.yPosition = 0;
     this.key = "";
+
     this.initialState = 0;
     this.state = () => this.initialState;
-    this.image = new Image();
-    this.finalFrames = 0;
+    this.width = 0;
+
     this.gameFrame = 0;
+    this.finalFrames = 0;
 
     this.lives = 5;
     this.isDead = false;
@@ -32,27 +35,28 @@ export class Chars {
   }
 
   draw() {
-    this.image.src = PLAYERDB[this.state()].src;
-    this.ctx.drawImage(
-      this.image,
-      PLAYERDB[this.state()].initialFrame * PLAYERDB[this.state()].width,
-      0,
-      PLAYERDB[this.state()].width,
+    this.width = PLAYERDB[this.state()].width;
+    super.draw(
+      PLAYERDB[this.state()].src,
+      PLAYERDB[this.state()].initialFrame * this.width,
+      this.width,
       PLAYERDB[this.state()].height,
-      this.x,
-      this.y,
+      this.xPosition,
+      this.yPosition,
       PLAYERDB[this.state()].widthSize,
       PLAYERDB[this.state()].heightSize
     );
   }
 
   animateFrames() {
+    // super.animateFrames(0, PLAYERDB[this.state()].stepFrames, PLAYERDB[this.state()].initialFrame, 0, PLAYERDB[this.state()].frameReset);
     if (this.gameFrame % PLAYERDB[this.state()].stepFrames === 0) {
       if (PLAYERDB[this.state()].initialFrame <= this.finalFrames) PLAYERDB[this.state()].initialFrame = PLAYERDB[this.state()].frameReset;
 
       PLAYERDB[this.state()].initialFrame--;
+      // console.log(PLAYERDB[this.state()].initialFrame)
     }
-    this.gameFrame++;
+    this.gameFrame < 100 ? this.gameFrame++ : (this.gameFrame = 0);
   }
 
   movement() {
@@ -70,7 +74,7 @@ export class Chars {
           this.initialState = 7;
           setTimeout(() => {
             this.key = "";
-          }, 1000);
+          }, 900);
           break;
         case "Control":
           this.initialState = 2;
@@ -99,16 +103,16 @@ export class Chars {
       }
     } else {
       this.initialState = 6;
-      this.y = CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50;
+      this.yPosition = CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50;
       if (this.key === "r") {
         this.isDone = false;
         this.isDead = false;
-        this.lives = 1
+        this.lives = 1;
       }
     }
 
-    this.x += this.speed;
-    this.y += this.yVertical;
+    this.xPosition += this.speed;
+    this.yPosition += this.yVertical;
 
     if (!this.isDone) {
       if (!this.onFloor()) {
@@ -117,14 +121,14 @@ export class Chars {
         this.yVertical = 0;
       }
 
-      if (this.y >= CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50) {
-        this.y = CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50;
+      if (this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50) {
+        this.yPosition = CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50;
       }
     }
   }
 
   onFloor() {
-    return this.y >= CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50;
+    return this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50;
   }
 
   takeHits() {}
