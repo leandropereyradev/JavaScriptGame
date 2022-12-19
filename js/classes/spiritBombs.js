@@ -2,9 +2,9 @@ import { CANVAS_WIDTH } from "../utils/constants.js";
 import { PLAYERDB } from "../utils/playerDB.js";
 import { Sprite } from "./sprite.js";
 
-export class SpiritBombs extends Sprite{
+export class SpiritBombs extends Sprite {
   constructor(ctx, xPosition, yPosition) {
-    super(ctx)
+    super(ctx);
 
     this.xPosition = xPosition;
     this.yPosition = yPosition;
@@ -14,11 +14,6 @@ export class SpiritBombs extends Sprite{
     this.gameFrame = 0;
 
     this.isSpiritBombCollided = false;
-  }
-
-  bombAnimations() {
-    this.draw();
-    this.animateFrames();
   }
 
   draw() {

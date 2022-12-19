@@ -1,4 +1,4 @@
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
+import { CANVAS_HEIGHT } from "../utils/constants.js";
 import { PLAYERDB } from "../utils/playerDB.js";
 import { Sprite } from "./sprite.js";
 
@@ -12,7 +12,6 @@ export class Chars extends Sprite {
     this.key = "";
 
     this.initialState = 0;
-    this.state = () => this.initialState;
     this.width = 0;
 
     this.gameFrame = 0;
@@ -24,8 +23,8 @@ export class Chars extends Sprite {
 
     this.xVelocity = 5;
     this.speed = 0;
-    this.yVertical = 1;
-    this.gravity = 1;
+    this.yVertical = 0.1;
+    this.gravity = 0.5;
   }
 
   charAnimations() {
@@ -35,26 +34,27 @@ export class Chars extends Sprite {
   }
 
   draw() {
-    this.width = PLAYERDB[this.state()].width;
+    this.width = PLAYERDB[this.initialState].width;
     super.draw(
-      PLAYERDB[this.state()].src,
-      PLAYERDB[this.state()].initialFrame * this.width,
+      PLAYERDB[this.initialState].src,
+      PLAYERDB[this.initialState].initialFrame * this.width,
       this.width,
-      PLAYERDB[this.state()].height,
+      PLAYERDB[this.initialState].height,
       this.xPosition,
       this.yPosition,
-      PLAYERDB[this.state()].widthSize,
-      PLAYERDB[this.state()].heightSize
+      PLAYERDB[this.initialState].widthSize,
+      PLAYERDB[this.initialState].heightSize
     );
   }
 
   animateFrames() {
-    // super.animateFrames(0, PLAYERDB[this.state()].stepFrames, PLAYERDB[this.state()].initialFrame, 0, PLAYERDB[this.state()].frameReset);
-    if (this.gameFrame % PLAYERDB[this.state()].stepFrames === 0) {
-      if (PLAYERDB[this.state()].initialFrame <= this.finalFrames) PLAYERDB[this.state()].initialFrame = PLAYERDB[this.state()].frameReset;
+    // super.animateFrames(0, PLAYERDB[this.initialState].stepFrames, PLAYERDB[this.initialState].initialFrame, 0, PLAYERDB[this.initialState].frameReset);
+    if (this.gameFrame % PLAYERDB[this.initialState].stepFrames === 0) {
+      if (PLAYERDB[this.initialState].initialFrame <= this.finalFrames)
+        PLAYERDB[this.initialState].initialFrame = PLAYERDB[this.initialState].frameReset;
 
-      PLAYERDB[this.state()].initialFrame--;
-      // console.log(PLAYERDB[this.state()].initialFrame)
+      PLAYERDB[this.initialState].initialFrame--;
+      // console.log(PLAYERDB[this.initialState].initialFrame)
     }
     this.gameFrame < 100 ? this.gameFrame++ : (this.gameFrame = 0);
   }
@@ -103,7 +103,7 @@ export class Chars extends Sprite {
       }
     } else {
       this.initialState = 6;
-      this.yPosition = CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50;
+      this.yPosition = CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50;
       if (this.key === "r") {
         this.isDone = false;
         this.isDead = false;
@@ -116,19 +116,20 @@ export class Chars extends Sprite {
 
     if (!this.isDone) {
       if (!this.onFloor()) {
+        this.initialState = 1;
         this.yVertical += this.gravity;
       } else {
         this.yVertical = 0;
       }
 
-      if (this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50) {
-        this.yPosition = CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50;
+      if (this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50) {
+        this.yPosition = CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50;
       }
     }
   }
 
   onFloor() {
-    return this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.state()].heightSize - 50;
+    return this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50;
   }
 
   takeHits() {}

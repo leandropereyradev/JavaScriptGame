@@ -8,11 +8,11 @@ export class Sprite {
     this.image.src = imgSrc;
     this.ctx.drawImage(this.image, widthSprite, 0, width, height, xPosition, yPosition, widthSize, heightSize);
   }
-
+  
   animateFrames(gameFrame, stepFrames, initialFrame, finalFrames, frameReset) {
     if (gameFrame % stepFrames === 0) {
       if (initialFrame <= finalFrames) initialFrame = frameReset;
-
+      
       initialFrame--;
       console.log(initialFrame);
     }

@@ -9,7 +9,7 @@ export const PLAYERDB = [
     frameReset: 6,
     initialFrame: 6,
     stepFrames: 9,
-    src: "../../src/img/player_idle.png",
+    src: "../../src/img/player/player_idle.png",
   },
   {
     id: 1,
@@ -21,7 +21,7 @@ export const PLAYERDB = [
     frameReset: 6,
     initialFrame: 6,
     stepFrames: 7,
-    src: "../../src/img/player_run.png",
+    src: "../../src/img/player/player_run.png",
   },
   {
     id: 2,
@@ -33,7 +33,7 @@ export const PLAYERDB = [
     frameReset: 3,
     initialFrame: 3,
     stepFrames: 6,
-    src: "../../src/img/player_attack.png",
+    src: "../../src/img/player/player_attack.png",
   },
   {
     id: 3,
@@ -45,7 +45,7 @@ export const PLAYERDB = [
     frameReset: 7,
     initialFrame: 7,
     stepFrames: 6,
-    src: "../../src/img/player_bomb.png",
+    src: "../../src/img/player/player_bomb.png",
   },
   {
     id: 4,
@@ -57,7 +57,7 @@ export const PLAYERDB = [
     frameReset: 7,
     initialFrame: 7,
     stepFrames: 5,
-    src: "../../src/img/player_takeHits.png",
+    src: "../../src/img/player/player_takeHits.png",
   },
   {
     id: 5,
@@ -69,7 +69,7 @@ export const PLAYERDB = [
     frameReset: 7,
     initialFrame: 7,
     stepFrames: 8,
-    src: "../../src/img/player_dead.png",
+    src: "../../src/img/player/player_dead.png",
   },
   {
     id: 6,
@@ -81,7 +81,7 @@ export const PLAYERDB = [
     frameReset: 12,
     initialFrame: 12,
     stepFrames: 8,
-    src: "../../src/img/player_fire.png",
+    src: "../../src/img/player/player_fire.png",
   },
   {
     id: 7,
@@ -93,6 +93,6 @@ export const PLAYERDB = [
     frameReset: 9,
     initialFrame: 9,
     stepFrames: 8,
-    src: "../../src/img/player_resurrection.png",
+    src: "../../src/img/player/player_resurrection.png",
   },
 ];

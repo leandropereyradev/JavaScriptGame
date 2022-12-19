@@ -17,7 +17,7 @@ export class Game {
 
     this.monsters = [];
     this.monstersKilled = 0;
-    this.tickMonster = 60 * 5;
+    this.tickMonster = Math.floor(Math.random() * 500) + 100;
 
     this.bats = [];
     this.batFreed = 0;
@@ -25,23 +25,23 @@ export class Game {
 
     //Background
     this.imgBackground = new Image();
-    this.imgBackground.src = "../../src/img/bd_space_seamless_fl1.png";
+    this.imgBackground.src = "../../src/img/background/bd_space_seamless_fl1.png";
     this.sizeBg = 1865;
     this.sizeMoon = 300;
     this.bgSpeed = 1;
-    this.imgSrc1 = "../../src/img/moon.png";
+    this.imgSrc1 = "../../src/img/background/moon.png";
     this.moon = new Background(ctx, CANVAS_WIDTH, 0, this.imgSrc1, this.bgSpeed * 0.07, null, this.sizeMoon, false);
-    this.imgSrc2 = "../../src/img/background3.png";
+    this.imgSrc2 = "../../src/img/background/background3.png";
     this.bg1 = new Background(ctx, 0, 30, this.imgSrc2, this.bgSpeed * 0.1, this.sizeBg, this.sizeBg, true);
-    this.imgSrc3 = "../../src/img/background2.png";
+    this.imgSrc3 = "../../src/img/background/background2.png";
     this.bg2 = new Background(ctx, 0, 40, this.imgSrc3, this.bgSpeed * 0.3, this.sizeBg, this.sizeBg, true);
-    this.imgSrc4 = "../../src/img/clouds.png";
+    this.imgSrc4 = "../../src/img/background/clouds.png";
     this.clouds = new Background(ctx, 0, 60, this.imgSrc4, this.bgSpeed * 0.8, this.sizeBg, this.sizeBg, true, true);
-    this.imgSrc4b = "../../src/img/clouds.png";
+    this.imgSrc4b = "../../src/img/background/clouds.png";
     this.clouds2 = new Background(ctx, 400, 250, this.imgSrc4b, this.bgSpeed * 0.1, this.sizeBg, this.sizeBg, true, true);
-    this.imgSrc5 = "../../src/img/background1.png";
+    this.imgSrc5 = "../../src/img/background/background1.png";
     this.bg3 = new Background(ctx, 0, 56, this.imgSrc5, this.bgSpeed * 0.5, this.sizeBg, this.sizeBg, true);
-    this.imgSrc6 = "../../src/img/floor.png";
+    this.imgSrc6 = "../../src/img/background/floor.png";
     this.floor = new Background(ctx, 0, CANVAS_HEIGHT - 60, this.imgSrc6, this.bgSpeed * 0.8, this.sizeBg, this.sizeBg, true);
     this.decorations = [this.moon, this.bg1, this.clouds, this.bg2, this.clouds2, this.bg3, this.floor];
   }
@@ -51,30 +51,35 @@ export class Game {
       this.clear();
       this.draw();
 
-      this.player.charAnimations();
+      this.checkBombAndMonster();
 
-      this.spiritBombs.forEach((bomb) => {
-        bomb.bombAnimations();
-        bomb.move();
-        this.spiritBombInfo = bomb.xPosition + 0.5;
+      this.bats.forEach((bat) => {
+        bat.draw();
+        bat.movement();
       });
-      this.spiritBombs = this.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
-
-      this.checkCollisionsMonsters();
 
       this.monstersAppears();
-      this.checkBombAndMonster();
+
+      this.monsters.forEach((monster) => {
+        monster.draw();
+        monster.animateFrames();
+        monster.movement();
+      });
+
+      this.spiritBombs.forEach((bomb) => {
+        bomb.draw();
+        bomb.animateFrames();
+        bomb.move();
+      });
+
+      this.checkCollisionsMonsters();
 
       this.batsAppears();
       this.checkBombAndBat();
 
-      this.monsters.forEach((monster) => {
-        monster.movement();
-      });
+      this.spiritBombs = this.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
 
-      this.bats.forEach((bat) => {
-        bat.movement();
-      });
+      this.player.charAnimations();
     }, 1000 / 60);
   }
 
@@ -84,12 +89,6 @@ export class Game {
     this.decorations.forEach((decoration) => {
       decoration.draw();
       decoration.animate();
-    });
-
-    this.monsters.forEach((monster) => monster.draw());
-
-    this.bats.forEach((bat) => {
-      bat.draw();
     });
 
     this.displayStatus();
@@ -110,14 +109,11 @@ export class Game {
     this.tickMonster--;
 
     if (this.tickMonster <= 0) {
-      this.tickMonster = Math.floor(Math.random() * 1500) + 200;
-      const monster = new Monsters(this.ctx);
+      this.tickMonster = Math.floor(Math.random() * 1000) + 700;
+      const randomStop = Math.floor(Math.random() * (1200 - 100) + 100);
+      const monster = new Monsters(this.ctx, randomStop);
       this.monsters.push(monster);
     }
-
-    this.monsters.forEach((monster) => {
-      if (monster.xPosition === -monster.width) monster.isMonsterOut = true;
-    });
 
     this.monsters = this.monsters.filter((monster) => !monster.isMonsterOut);
   }
@@ -143,22 +139,26 @@ export class Game {
   checkCollisionsMonsters() {
     if (!this.player.isDone) {
       this.monsters.forEach((monster) => {
-        const dx = monster.xPosition - this.player.xPosition - this.player.width / 2;
-        const dy = monster.yFloor - this.player.yPosition;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (!monster.isNotAttacking) {
+          const dx = monster.xPosition - this.player.xPosition - 5;
+          const dy = monster.yPosition() - this.player.yPosition;
+          const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < monster.width / 2 + this.player.width / 2) {
-          //Todo: Implementar que al chocar empuje al jugador y reste punto y vida
-          console.log("Player touched by the monster");
+          if (distance < monster.width / 2 + this.player.width / 2) {
+            if (!this.player.isDead && this.player.lives > 0) {
+              monster.initialState = 1;
+              monster.distanceFloor = 190;
+              this.player.xPosition -= 200;
+              setTimeout(() => {
+                monster.initialState = 0;
+                monster.distanceFloor = 175;
+              }, 300);
 
-          if (!this.player.isDead && this.player.lives > 0) {
-            this.player.xPosition -= 200;
-            // this.player.initialState = 4;
-
-            this.player.lives -= 1;
-            if (this.player.lives === 0) {
-              this.player.isDead = true;
-              this.player.initialState = 6;
+              this.player.lives -= 1;
+              if (this.player.lives === 0) {
+                this.player.isDead = true;
+                this.player.initialState = 6;
+              }
             }
           }
         }
@@ -167,15 +167,26 @@ export class Game {
   }
 
   checkBombAndMonster() {
-    this.spiritBombs.forEach((bomb) => {
-      this.monsters.forEach((monster) => {
-        if (monster.xPosition <= bomb.xPosition + 50 && monster.xPosition + monster.width >= bomb.xPosition) {
-          monster.isMonsterKilled = true;
-          bomb.isSpiritBombCollided = true;
+    this.monsters.forEach((monster) => {
+      if (!monster.isMonsterKilled) {
+        this.spiritBombs.forEach((bomb) => {
+          if (monster.xPosition <= bomb.xPosition + 50 && monster.xPosition + monster.width >= bomb.xPosition) {
+            bomb.isSpiritBombCollided = true;
+            monster.lives -= 1;
+          }
+        });
+        if (monster.lives === 0) {
+          monster.initialState = 2;
+          monster.distanceFloor = 175;
+          monster.speed = 0;
+          monster.isNotAttacking = true;
           this.monstersKilled += 1;
+          monster.isMonsterKilled = true;
+          setTimeout(() => {
+            this.monsters = this.monsters.filter((monster) => !monster.isMonsterKilled);
+          }, 1000);
         }
-        this.monsters = this.monsters.filter((monster) => !monster.isMonsterKilled);
-      });
+      }
     });
   }
 
