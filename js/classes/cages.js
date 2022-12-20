@@ -2,11 +2,13 @@ import { BATSDB } from "../utils/batsDB.js";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
 
 export class Cages {
-  constructor(ctx, initialState) {
+  constructor(ctx, initialState, xPosition, yPosition) {
     this.ctx = ctx;
 
-    this.xPosition = CANVAS_WIDTH - 30;
-    this.yPosition = CANVAS_HEIGHT - 240;
+    this.yPosition = yPosition;
+    this.xPosition = xPosition;
+    this.width = 0;
+    this.height = 0;
 
     this.isCageOut = false;
     this.isCageOpen = false;
@@ -20,11 +22,13 @@ export class Cages {
   }
 
   draw() {
+    this.width = BATSDB[this.initialState].width;
+    this.height = BATSDB[this.initialState].height;
     if (this.isCageOpen) {
       this.image.src = BATSDB[2].src;
       this.initialState = 2;
     }
-    this.ctx.drawImage(this.image, this.xPosition, this.yPosition, BATSDB[this.initialState].width, BATSDB[this.initialState].height);
+    this.ctx.drawImage(this.image, this.xPosition, this.yPosition, this.width, this.height);
   }
 
   movement() {

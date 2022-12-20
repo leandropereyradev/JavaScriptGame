@@ -23,7 +23,7 @@ export class Chars extends Sprite {
 
     this.xVelocity = 5;
     this.speed = 0;
-    this.yVertical = 0.1;
+    this.yVertical = 1;
     this.gravity = 0.5;
   }
 
@@ -86,7 +86,7 @@ export class Chars extends Sprite {
         case " ":
           if (this.onFloor()) {
             this.initialState = 0;
-            this.yVertical = -20;
+            this.yVertical = -15;
           }
           break;
         case "":

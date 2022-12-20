@@ -5,8 +5,8 @@ import { Sprite } from "./sprite.js";
 export class Bats extends Sprite {
   constructor(ctx, initialFrame, id) {
     super(ctx);
-    this.yPosition = CANVAS_HEIGHT - 130;
-    this.xPosition = CANVAS_WIDTH;
+    this.yPosition = CANVAS_HEIGHT - 220;
+    this.xPosition = CANVAS_WIDTH - 10;
     this.width = 90;
     this.height = 60;
     this.isBatOut = false;

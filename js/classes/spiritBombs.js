@@ -8,6 +8,8 @@ export class SpiritBombs extends Sprite {
 
     this.xPosition = xPosition;
     this.yPosition = yPosition;
+    this.width = 0;
+    this.height = 0;
     this.xVelocity = 10;
 
     this.finalFrames = 0;
@@ -17,6 +19,8 @@ export class SpiritBombs extends Sprite {
   }
 
   draw() {
+    this.width = PLAYERDB[3].width;
+    this.height = PLAYERDB[3].height;
     super.draw(
       PLAYERDB[3].src,
       PLAYERDB[3].initialFrame * PLAYERDB[3].width,

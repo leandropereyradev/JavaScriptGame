@@ -23,6 +23,7 @@ export class Game {
     this.bats = [];
     this.cagesFront = [];
     this.cagesBack = [];
+    this.woodsChain = [];
     this.batFreed = 0;
     this.tickBat = 60;
 
@@ -56,6 +57,11 @@ export class Game {
       this.draw();
 
       this.checkBombAndMonster();
+
+      this.woodsChain.forEach((woodChain) => {
+        woodChain.draw();
+        woodChain.movement();
+      });
 
       this.cagesBack.forEach((cage) => {
         cage.draw();
@@ -154,11 +160,14 @@ export class Game {
       const bat = new Bats(this.ctx, number, crypto.randomUUID());
       this.bats.push(bat);
 
-      const cageFront = new Cages(this.ctx, 1);
+      const cageFront = new Cages(this.ctx, 1, 994, 260);
       this.cagesFront.push(cageFront);
 
-      const cageBack = new Cages(this.ctx, 0);
+      const cageBack = new Cages(this.ctx, 0, 994, 260);
       this.cagesBack.push(cageBack);
+
+      const woodChain = new Cages(this.ctx, 6, 1007, 145);
+      this.woodsChain.push(woodChain);
     }
 
     this.bats = this.bats.filter((bat) => !bat.isBatOut);
@@ -166,6 +175,8 @@ export class Game {
     this.cagesFront = this.cagesFront.filter((cage) => !cage.isCageOut);
 
     this.cagesBack = this.cagesBack.filter((cage) => !cage.isCageOut);
+
+    this.woodsChain = this.woodsChain.filter((woodChain) => !woodChain.isCageOut);
   }
 
   checkCollisionsMonsters() {
@@ -180,6 +191,7 @@ export class Game {
             if (!this.player.isDead && this.player.lives > 0) {
               monster.initialState = 1;
               monster.distanceFloor = 190;
+              monster.speed = 1.3;
               this.player.xPosition -= 200;
 
               setTimeout(() => {
@@ -229,7 +241,11 @@ export class Game {
       this.cagesFront.forEach((cage) => {
         this.bats.forEach((bat) => {
           if (!cage.isCageOpen) {
-            if (cage.xPosition <= bomb.xPosition) {
+            const colX = cage.xPosition +50 < bomb.xPosition + bomb.width && cage.xPosition +50 + cage.width > bomb.xPosition;
+            
+            const colY = cage.yPosition < bomb.yPosition + bomb.height && cage.yPosition + cage.height - 50 > bomb.yPosition;
+
+            if (colX && colY) {
               cage.hard -= 1;
               bomb.isSpiritBombCollided = true;
 
