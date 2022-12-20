@@ -5,6 +5,7 @@ import { Monsters } from "./monsters.js";
 import { Bats } from "./bats.js";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
 import { Cages } from "./cages.js";
+import { Hearts } from "./hearts.js";
 
 export class Game {
   constructor(ctx) {
@@ -15,7 +16,7 @@ export class Game {
 
     this.player = new Chars(ctx);
     this.spiritBombs = [];
-
+    this.hearts = new Hearts(this.ctx);
     this.monsters = [];
     this.monstersKilled = 0;
     this.tickMonster = Math.floor(Math.random() * 500) + 100;
@@ -29,24 +30,33 @@ export class Game {
 
     //Background
     this.imgBackground = new Image();
-    this.imgBackground.src = "../../src/img/background/bd_space_seamless_fl1.png";
+    this.imgBackground.src = "../../src/img/background/sky.png";
     this.sizeBg = 1865;
     this.sizeMoon = 300;
     this.bgSpeed = 1;
+    this.bgSpeedControlled = 1;
+
     this.imgSrc1 = "../../src/img/background/moon.png";
     this.moon = new Background(ctx, CANVAS_WIDTH, 0, this.imgSrc1, this.bgSpeed * 0.07, null, this.sizeMoon, false);
+
     this.imgSrc2 = "../../src/img/background/background3.png";
-    this.bg1 = new Background(ctx, 0, 30, this.imgSrc2, this.bgSpeed * 0.1, this.sizeBg, this.sizeBg, true);
+    this.bg1 = new Background(ctx, 0, 30, this.imgSrc2, this.bgSpeedControlled * 0.1, this.sizeBg, this.sizeBg, true);
+
     this.imgSrc3 = "../../src/img/background/background2.png";
-    this.bg2 = new Background(ctx, 0, 40, this.imgSrc3, this.bgSpeed * 0.3, this.sizeBg, this.sizeBg, true);
+    this.bg2 = new Background(ctx, 0, 40, this.imgSrc3, this.bgSpeedControlled * 0.3, this.sizeBg, this.sizeBg, true);
+
     this.imgSrc4 = "../../src/img/background/clouds.png";
     this.clouds = new Background(ctx, 0, 60, this.imgSrc4, this.bgSpeed * 0.8, this.sizeBg, this.sizeBg, true, true);
+
     this.imgSrc4b = "../../src/img/background/clouds.png";
     this.clouds2 = new Background(ctx, 400, 250, this.imgSrc4b, this.bgSpeed * 0.1, this.sizeBg, this.sizeBg, true, true);
+
     this.imgSrc5 = "../../src/img/background/background1.png";
-    this.bg3 = new Background(ctx, 0, 56, this.imgSrc5, this.bgSpeed * 0.5, this.sizeBg, this.sizeBg, true);
+    this.bg3 = new Background(ctx, 0, 56, this.imgSrc5, this.bgSpeedControlled * 0.5, this.sizeBg, this.sizeBg, true);
+
     this.imgSrc6 = "../../src/img/background/floor.png";
-    this.floor = new Background(ctx, 0, CANVAS_HEIGHT - 60, this.imgSrc6, this.bgSpeed * 0.8, this.sizeBg, this.sizeBg, true);
+    this.floor = new Background(ctx, 0, CANVAS_HEIGHT - 100, this.imgSrc6, this.bgSpeedControlled * 0.8, this.sizeBg, this.sizeBg, true);
+
     this.decorations = [this.moon, this.bg1, this.clouds, this.bg2, this.clouds2, this.bg3, this.floor];
   }
 
@@ -112,6 +122,8 @@ export class Game {
       decoration.animate();
     });
 
+    this.hearts.draw(this.player.lives);
+
     this.displayStatus();
   }
 
@@ -166,7 +178,7 @@ export class Game {
       const cageBack = new Cages(this.ctx, 0, 994, 260);
       this.cagesBack.push(cageBack);
 
-      const woodChain = new Cages(this.ctx, 6, 1007, 145);
+      const woodChain = new Cages(this.ctx, 6, 1007, 115);
       this.woodsChain.push(woodChain);
     }
 
@@ -193,6 +205,7 @@ export class Game {
               monster.distanceFloor = 190;
               monster.speed = 1.3;
               this.player.xPosition -= 200;
+              this.player.takedHit = true;
 
               setTimeout(() => {
                 monster.initialState = 0;
@@ -241,9 +254,9 @@ export class Game {
       this.cagesFront.forEach((cage) => {
         this.bats.forEach((bat) => {
           if (!cage.isCageOpen) {
-            const colX = cage.xPosition +50 < bomb.xPosition + bomb.width && cage.xPosition +50 + cage.width > bomb.xPosition;
-            
-            const colY = cage.yPosition < bomb.yPosition + bomb.height && cage.yPosition + cage.height - 50 > bomb.yPosition;
+            const colX = cage.xPosition + 50 < bomb.xPosition + bomb.width && cage.xPosition + 50 + cage.width > bomb.xPosition;
+
+            const colY = cage.yPosition < bomb.yPosition + bomb.height && cage.yPosition + cage.height - 80 > bomb.yPosition;
 
             if (colX && colY) {
               cage.hard -= 1;
@@ -253,7 +266,13 @@ export class Game {
                 cage.isCageOpen = true;
                 bat.speed = 2;
                 bat.isBatFreed = true;
-                this.batFreed += 1;
+
+                if (this.player.lives < 10) this.batFreed += 1;
+
+                if (this.batFreed >= 5 && this.player.lives <= 9) {
+                  this.player.lives += 1;
+                  this.batFreed = 0;
+                }
               }
             }
           }
@@ -267,7 +286,6 @@ export class Game {
     this.ctx.font = "20px Helvetica";
     this.ctx.fillText("Monsters Killed: " + this.monstersKilled, 20, 50);
     this.ctx.fillText("Bats Freed: " + this.batFreed, 20, 80);
-    this.ctx.fillText("Player lives: " + this.player.lives, 20, 110);
   }
 
   gameOver() {}
@@ -279,6 +297,7 @@ export class Game {
           switch (event.key) {
             case "ArrowLeft":
               this.player.key = event.key;
+              // this.bgSpeedControlled = 0
               break;
             case "ArrowRight":
               this.player.key = event.key;
@@ -312,6 +331,7 @@ export class Game {
             case "ArrowLeft":
             case "ArrowRight":
               this.player.key = "";
+              this.bgSpeedControlled = 0;
               break;
             case "Control":
               if (!this.player.isDone) this.playerAttack();

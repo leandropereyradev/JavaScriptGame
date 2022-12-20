@@ -1,5 +1,4 @@
 import { BATSDB } from "../utils/batsDB.js";
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
 
 export class Cages {
   constructor(ctx, initialState, xPosition, yPosition) {
@@ -15,7 +14,7 @@ export class Cages {
 
     this.initialState = initialState;
     this.speed = 1;
-    this.hard = 2;
+    this.hard = Math.floor(Math.random() * 4) + 2;
 
     this.image = new Image();
     this.image.src = BATSDB[this.initialState].src;

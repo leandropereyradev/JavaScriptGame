@@ -7,9 +7,9 @@ export class Sprite {
     this.gameFrame = 0;
   }
 
-  draw(imgSrc, widthSprite, width, height, xPosition, yPosition, widthSize, heightSize) {
+  draw(imgSrc, xSprite, ySprite, width, height, xPosition, yPosition, widthSize, heightSize) {
     this.image.src = imgSrc;
-    this.ctx.drawImage(this.image, widthSprite, 0, width, height, xPosition, yPosition, widthSize, heightSize);
+    this.ctx.drawImage(this.image, xSprite, ySprite, width, height, xPosition, yPosition, widthSize, heightSize);
   }
 
   animateFrames(stepFrames, initialFrame, frameReset) {

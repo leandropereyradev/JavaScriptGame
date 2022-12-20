@@ -19,8 +19,8 @@ export class Monsters extends Sprite {
     this.isMonsterKilled = false;
     this.isNotAttacking = false;
 
-    this.speed = 0.3;
-    this.lives = 3;
+    this.speed = Math.floor(Math.random() * 5) + 1;
+    this.lives = Math.floor(Math.random() * 5) + 3;
     this.stop = 1;
     this.walk = 1;
     this.randomStop = randomStop;
@@ -33,6 +33,7 @@ export class Monsters extends Sprite {
     super.draw(
       MONSTERDB[this.initialState].src,
       MONSTERDB[this.initialState].initialFrame * MONSTERDB[this.initialState].width,
+      0,
       MONSTERDB[this.initialState].width,
       MONSTERDB[this.initialState].height,
       this.xPosition,

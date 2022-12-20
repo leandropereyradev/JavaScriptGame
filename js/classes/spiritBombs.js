@@ -24,6 +24,7 @@ export class SpiritBombs extends Sprite {
     super.draw(
       PLAYERDB[3].src,
       PLAYERDB[3].initialFrame * PLAYERDB[3].width,
+      0,
       PLAYERDB[3].width,
       PLAYERDB[3].height,
       this.xPosition,

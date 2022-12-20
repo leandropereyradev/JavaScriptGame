@@ -17,9 +17,10 @@ export class Chars extends Sprite {
     this.gameFrame = 0;
     this.finalFrames = 0;
 
-    this.lives = 5;
+    this.lives = 10;
     this.isDead = false;
     this.isDone = false;
+    this.takedHit = false;
 
     this.xVelocity = 5;
     this.speed = 0;
@@ -39,6 +40,7 @@ export class Chars extends Sprite {
     super.draw(
       PLAYERDB[this.initialState].src,
       PLAYERDB[this.initialState].initialFrame * this.width,
+      0,
       this.width,
       PLAYERDB[this.initialState].height,
       this.xPosition,
@@ -92,12 +94,21 @@ export class Chars extends Sprite {
         case "":
           if (this.isDead) {
             this.initialState = 5;
+
             setTimeout(() => {
               this.isDone = true;
             }, 1000);
           } else {
-            this.initialState = 0;
-            this.speed = 0;
+            if (this.takedHit) {
+              this.initialState = 4;
+
+              setTimeout(() => {
+                this.takedHit = false;
+              }, 500);
+            } else {
+              this.initialState = 0;
+              this.speed = 0;
+            }
           }
 
           break;
@@ -120,20 +131,21 @@ export class Chars extends Sprite {
       if (!this.onFloor()) {
         this.initialState = 1;
         this.yVertical += this.gravity;
+
+        if (this.key === "Control") {
+          this.initialState = 2;
+        }
       } else {
         this.yVertical = 0;
       }
 
-      if (this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50)
+      if (this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50) {
         this.yPosition = CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50;
+      }
     }
   }
 
   onFloor() {
     return this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50;
   }
-
-  takeHits() {}
-
-  dead() {}
 }

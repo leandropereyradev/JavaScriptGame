@@ -25,6 +25,7 @@ export class Bats extends Sprite {
     super.draw(
       BATSDB[this.initialState].src,
       BATSDB[this.initialState].initialFrame * BATSDB[this.initialState].width,
+      0,
       BATSDB[this.initialState].width,
       BATSDB[this.initialState].height,
       this.xPosition,
