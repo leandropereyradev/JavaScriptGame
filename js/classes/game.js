@@ -4,6 +4,7 @@ import { SpiritBombs } from "./spiritBombs.js";
 import { Monsters } from "./monsters.js";
 import { Bats } from "./bats.js";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
+import { Cages } from "./cages.js";
 
 export class Game {
   constructor(ctx) {
@@ -20,6 +21,8 @@ export class Game {
     this.tickMonster = Math.floor(Math.random() * 500) + 100;
 
     this.bats = [];
+    this.cagesFront = [];
+    this.cagesBack = [];
     this.batFreed = 0;
     this.tickBat = 60;
 
@@ -49,13 +52,25 @@ export class Game {
   start() {
     this.interval = setInterval(() => {
       this.clear();
+
       this.draw();
 
       this.checkBombAndMonster();
 
+      this.cagesBack.forEach((cage) => {
+        cage.draw();
+        cage.movement();
+      });
+
       this.bats.forEach((bat) => {
         bat.draw();
+        bat.animateFrames();
         bat.movement();
+      });
+
+      this.cagesFront.forEach((cage) => {
+        cage.draw();
+        cage.movement();
       });
 
       this.monstersAppears();
@@ -75,7 +90,7 @@ export class Game {
       this.checkCollisionsMonsters();
 
       this.batsAppears();
-      this.checkBombAndBat();
+      this.checkBombAndCage();
 
       this.spiritBombs = this.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
 
@@ -96,6 +111,10 @@ export class Game {
 
   clear() {
     this.ctx.clearRect(this.x, this.y, CANVAS_WIDTH, CANVAS_HEIGHT);
+  }
+
+  pause() {
+    clearInterval(this.interval);
   }
 
   playerAttack() {
@@ -124,17 +143,30 @@ export class Game {
     if (this.tickBat <= 0) {
       this.tickBat = Math.floor(Math.random() * 800) + 300;
 
-      const bat = new Bats(this.ctx);
+      const bats = [3, 4, 5];
+      const selectBat = () => {
+        let number = Math.floor(Math.random() * bats.length);
+        return number;
+      };
+      let position = selectBat();
+      let number = bats[position];
+
+      const bat = new Bats(this.ctx, number, crypto.randomUUID());
       this.bats.push(bat);
+
+      const cageFront = new Cages(this.ctx, 1);
+      this.cagesFront.push(cageFront);
+
+      const cageBack = new Cages(this.ctx, 0);
+      this.cagesBack.push(cageBack);
     }
-    this.bats.forEach((bat) => {
-      if (bat.xPosition === -bat.width) bat.isBatOut = true;
-    });
 
-    this.bats = this.bats.filter((bat) => bat.isBatOut === false);
+    this.bats = this.bats.filter((bat) => !bat.isBatOut);
+
+    this.cagesFront = this.cagesFront.filter((cage) => !cage.isCageOut);
+
+    this.cagesBack = this.cagesBack.filter((cage) => !cage.isCageOut);
   }
-
-  pause() {}
 
   checkCollisionsMonsters() {
     if (!this.player.isDone) {
@@ -149,12 +181,14 @@ export class Game {
               monster.initialState = 1;
               monster.distanceFloor = 190;
               this.player.xPosition -= 200;
+
               setTimeout(() => {
                 monster.initialState = 0;
                 monster.distanceFloor = 175;
               }, 300);
 
               this.player.lives -= 1;
+
               if (this.player.lives === 0) {
                 this.player.isDead = true;
                 this.player.initialState = 6;
@@ -190,15 +224,24 @@ export class Game {
     });
   }
 
-  checkBombAndBat() {
+  checkBombAndCage() {
     this.spiritBombs.forEach((bomb) => {
-      this.bats.forEach((bat) => {
-        if (bat.xPosition <= bomb.xPosition + 50 && bat.xPosition + bat.width >= bomb.xPosition) {
-          bat.isBatKilled = true;
-          bomb.isSpiritBombCollided = true;
-          this.batFreed += 1;
-        }
-        this.bats = this.bats.filter((bat) => !bat.isBatKilled);
+      this.cagesFront.forEach((cage) => {
+        this.bats.forEach((bat) => {
+          if (!cage.isCageOpen) {
+            if (cage.xPosition <= bomb.xPosition) {
+              cage.hard -= 1;
+              bomb.isSpiritBombCollided = true;
+
+              if (cage.hard === 0) {
+                cage.isCageOpen = true;
+                bat.speed = 2;
+                bat.isBatFreed = true;
+                this.batFreed += 1;
+              }
+            }
+          }
+        });
       });
     });
   }
@@ -233,11 +276,23 @@ export class Game {
             case " ":
               this.player.key = event.key;
               break;
+            case "p":
+              this.pause();
+              break;
+            case "c":
+              this.start();
+              break;
+            case "s":
+              location.reload();
+              break;
           }
           break;
         case "keyup":
           switch (event.key) {
             case " ":
+            case "p":
+            case "c":
+            case "s":
             case "ArrowLeft":
             case "ArrowRight":
               this.player.key = "";

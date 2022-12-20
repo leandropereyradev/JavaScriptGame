@@ -2,21 +2,22 @@ export class Sprite {
   constructor(ctx) {
     this.ctx = ctx;
     this.image = new Image();
+
+    this.finalFrames = 0;
+    this.gameFrame = 0;
   }
 
   draw(imgSrc, widthSprite, width, height, xPosition, yPosition, widthSize, heightSize) {
     this.image.src = imgSrc;
     this.ctx.drawImage(this.image, widthSprite, 0, width, height, xPosition, yPosition, widthSize, heightSize);
   }
-  
-  animateFrames(gameFrame, stepFrames, initialFrame, finalFrames, frameReset) {
-    if (gameFrame % stepFrames === 0) {
-      if (initialFrame <= finalFrames) initialFrame = frameReset;
-      
+
+  animateFrames(stepFrames, initialFrame, frameReset) {
+    if (this.gameFrame % stepFrames === 0) {
+      if (initialFrame <= this.finalFrames) initialFrame = frameReset;
+
       initialFrame--;
-      console.log(initialFrame);
     }
-    gameFrame < 100 ? gameFrame++ : (gameFrame = 0);
-    console.log(gameFrame)
+    this.gameFrame < 100 ? this.gameFrame++ : (this.gameFrame = 0);
   }
 }

@@ -35,6 +35,7 @@ export class Chars extends Sprite {
 
   draw() {
     this.width = PLAYERDB[this.initialState].width;
+
     super.draw(
       PLAYERDB[this.initialState].src,
       PLAYERDB[this.initialState].initialFrame * this.width,
@@ -104,6 +105,7 @@ export class Chars extends Sprite {
     } else {
       this.initialState = 6;
       this.yPosition = CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50;
+
       if (this.key === "r") {
         this.isDone = false;
         this.isDead = false;
@@ -122,9 +124,8 @@ export class Chars extends Sprite {
         this.yVertical = 0;
       }
 
-      if (this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50) {
+      if (this.yPosition >= CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50)
         this.yPosition = CANVAS_HEIGHT - PLAYERDB[this.initialState].heightSize - 50;
-      }
     }
   }
 

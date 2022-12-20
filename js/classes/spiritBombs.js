@@ -30,16 +30,19 @@ export class SpiritBombs extends Sprite {
   }
 
   animateFrames() {
+    // super.animateFrames(PLAYERDB[3].stepFrames, PLAYERDB[3].initialFrame, PLAYERDB[3].frameReset);
+
     if (this.gameFrame % PLAYERDB[3].stepFrames === 0) {
       if (PLAYERDB[3].initialFrame <= this.finalFrames) PLAYERDB[3].initialFrame = PLAYERDB[3].frameReset;
 
       PLAYERDB[3].initialFrame--;
     }
-    this.gameFrame++;
+    this.gameFrame < 100 ? this.gameFrame++ : (this.gameFrame = 0);
   }
 
   move() {
     this.xPosition += this.xVelocity;
+
     if (this.xPosition > CANVAS_WIDTH) this.isSpiritBombCollided = true;
   }
 }
