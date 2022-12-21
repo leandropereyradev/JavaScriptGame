@@ -6,6 +6,7 @@ import { Bats } from "./bats.js";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
 import { Cages } from "./cages.js";
 import { Hearts } from "./hearts.js";
+import { Boss } from "./boss.js";
 
 export class Game {
   constructor(ctx) {
@@ -17,6 +18,10 @@ export class Game {
     this.player = new Chars(ctx);
     this.spiritBombs = [];
     this.hearts = new Hearts(this.ctx);
+    this.liveAccumulator = 0;
+    this.isFinal = false;
+
+    this.boss = new Boss(this.ctx);
     this.monsters = [];
     this.monstersKilled = 0;
     this.tickMonster = Math.floor(Math.random() * 500) + 100;
@@ -40,22 +45,33 @@ export class Game {
     this.moon = new Background(ctx, CANVAS_WIDTH, 0, this.imgSrc1, this.bgSpeed * 0.07, null, this.sizeMoon, false);
 
     this.imgSrc2 = "../../src/img/background/background3.png";
-    this.bg1 = new Background(ctx, 0, 30, this.imgSrc2, this.bgSpeedControlled * 0.1, this.sizeBg, this.sizeBg, true);
+    this.bg1 = new Background(ctx, 0, 30, this.imgSrc2, this.bgSpeedControlled * 0.1, this.sizeBg, this.sizeBg, true, false, true);
 
     this.imgSrc3 = "../../src/img/background/background2.png";
-    this.bg2 = new Background(ctx, 0, 40, this.imgSrc3, this.bgSpeedControlled * 0.3, this.sizeBg, this.sizeBg, true);
+    this.bg2 = new Background(ctx, 0, 40, this.imgSrc3, this.bgSpeedControlled * 0.3, this.sizeBg, this.sizeBg, true, false, true);
 
     this.imgSrc4 = "../../src/img/background/clouds.png";
-    this.clouds = new Background(ctx, 0, 60, this.imgSrc4, this.bgSpeed * 0.8, this.sizeBg, this.sizeBg, true, true);
+    this.clouds = new Background(ctx, 0, 60, this.imgSrc4, this.bgSpeed * 0.8, this.sizeBg, this.sizeBg, true);
 
     this.imgSrc4b = "../../src/img/background/clouds.png";
     this.clouds2 = new Background(ctx, 400, 250, this.imgSrc4b, this.bgSpeed * 0.1, this.sizeBg, this.sizeBg, true, true);
 
     this.imgSrc5 = "../../src/img/background/background1.png";
-    this.bg3 = new Background(ctx, 0, 56, this.imgSrc5, this.bgSpeedControlled * 0.5, this.sizeBg, this.sizeBg, true);
+    this.bg3 = new Background(ctx, 0, 56, this.imgSrc5, this.bgSpeedControlled * 0.5, this.sizeBg, this.sizeBg, true, false, true);
 
     this.imgSrc6 = "../../src/img/background/floor.png";
-    this.floor = new Background(ctx, 0, CANVAS_HEIGHT - 100, this.imgSrc6, this.bgSpeedControlled * 0.8, this.sizeBg, this.sizeBg, true);
+    this.floor = new Background(
+      ctx,
+      0,
+      CANVAS_HEIGHT - 100,
+      this.imgSrc6,
+      this.bgSpeedControlled * 0.8,
+      this.sizeBg,
+      this.sizeBg,
+      true,
+      false,
+      true
+    );
 
     this.decorations = [this.moon, this.bg1, this.clouds, this.bg2, this.clouds2, this.bg3, this.floor];
   }
@@ -108,6 +124,8 @@ export class Game {
       this.batsAppears();
       this.checkBombAndCage();
 
+      this.bossAppear();
+
       this.spiritBombs = this.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
 
       this.player.charAnimations();
@@ -121,6 +139,14 @@ export class Game {
       decoration.draw();
       decoration.animate();
     });
+
+    if (this.isFinal) {
+      this.boss.draw();
+      if (this.boss.isBossAppear) {
+        this.boss.animateFrames();
+        this.boss.movement();
+      }
+    }
 
     this.hearts.draw(this.player.lives);
 
@@ -148,8 +174,10 @@ export class Game {
     if (this.tickMonster <= 0) {
       this.tickMonster = Math.floor(Math.random() * 1000) + 700;
       const randomStop = Math.floor(Math.random() * (1200 - 100) + 100);
-      const monster = new Monsters(this.ctx, randomStop);
-      this.monsters.push(monster);
+      if (!this.isFinal) {
+        const monster = new Monsters(this.ctx, randomStop);
+        this.monsters.push(monster);
+      }
     }
 
     this.monsters = this.monsters.filter((monster) => !monster.isMonsterOut);
@@ -169,17 +197,19 @@ export class Game {
       let position = selectBat();
       let number = bats[position];
 
-      const bat = new Bats(this.ctx, number, crypto.randomUUID());
-      this.bats.push(bat);
+      if (!this.isFinal) {
+        const bat = new Bats(this.ctx, number, crypto.randomUUID());
+        this.bats.push(bat);
 
-      const cageFront = new Cages(this.ctx, 1, 994, 260);
-      this.cagesFront.push(cageFront);
+        const cageFront = new Cages(this.ctx, 1, 994, 260);
+        this.cagesFront.push(cageFront);
 
-      const cageBack = new Cages(this.ctx, 0, 994, 260);
-      this.cagesBack.push(cageBack);
+        const cageBack = new Cages(this.ctx, 0, 994, 260);
+        this.cagesBack.push(cageBack);
 
-      const woodChain = new Cages(this.ctx, 6, 1007, 115);
-      this.woodsChain.push(woodChain);
+        const woodChain = new Cages(this.ctx, 6, 1007, 115);
+        this.woodsChain.push(woodChain);
+      }
     }
 
     this.bats = this.bats.filter((bat) => !bat.isBatOut);
@@ -189,6 +219,24 @@ export class Game {
     this.cagesBack = this.cagesBack.filter((cage) => !cage.isCageOut);
 
     this.woodsChain = this.woodsChain.filter((woodChain) => !woodChain.isCageOut);
+  }
+
+  bossAppear() {
+    if (this.batFreed >= 1) {
+      this.isFinal = true;
+      if (!this.monsters.length && !this.cagesFront.length) {
+        this.boss.isBossAppear = true;
+        setTimeout(() => {
+          this.decorations.forEach((bg) => {
+            if (bg.controled) bg.backgroundSpeed = 0;
+          });
+        }, 4000);
+        if (this.boss.xPosition <= 750) {
+          this.boss.initialState = 2;
+          this.boss.speed = 0;
+        }
+      }
+    }
   }
 
   checkCollisionsMonsters() {
@@ -266,12 +314,13 @@ export class Game {
                 cage.isCageOpen = true;
                 bat.speed = 2;
                 bat.isBatFreed = true;
+                this.batFreed += 1;
 
-                if (this.player.lives < 10) this.batFreed += 1;
+                if (this.player.lives < 10) this.liveAccumulator += 1;
 
-                if (this.batFreed >= 5 && this.player.lives <= 9) {
+                if (this.liveAccumulator >= 5 && this.player.lives <= 9) {
                   this.player.lives += 1;
-                  this.batFreed = 0;
+                  this.liveAccumulator = 0;
                 }
               }
             }

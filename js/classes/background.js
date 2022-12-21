@@ -1,7 +1,7 @@
 import { CANVAS_WIDTH } from "../utils/constants.js";
 
 export class Background {
-  constructor(ctx, x, y, imgSrc, backgroundSpeed, x2, width, infinity, right = false) {
+  constructor(ctx, x, y, imgSrc, backgroundSpeed, x2, width, infinity, right = false, controled= false) {
     this.ctx = ctx;
     this.x = x;
     this.x2 = x2;
@@ -15,6 +15,7 @@ export class Background {
     this.backgroundSpeed = backgroundSpeed;
     this.infinity = infinity;
     this.right = right;
+    this.controled = controled
   }
   draw() {
     this.ctx.drawImage(this.image, this.x, this.y);

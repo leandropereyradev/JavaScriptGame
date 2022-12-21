@@ -57,7 +57,7 @@ export class Monsters extends Sprite {
   }
 
   movement() {
-    if (this.xPosition === -this.width) this.isMonsterOut = true;
+    if (this.xPosition === -MONSTERDB[this.initialState].width) this.isMonsterOut = true;
 
     if (this.stop > this.randomStop && !this.stoped) {
       this.stoped = true;
