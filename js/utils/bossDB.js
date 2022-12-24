@@ -1,41 +1,32 @@
-export const BOSSDB = [
-  {
-    id: 0,
-    state: "walk",
-    width: 261,
-    height: 305,
-    widthSize: 261,
-    heightSize: 305,
-    frameReset: 20,
-    initialFrame: 20,
-    stepFrames: 2,
+export const BOSSDB = {
+  WalkRight: {
+    image: "../../src/img/boss/boss_walk_right.png",
+    totalFrames: 10,
+    frameBuffer: 8,
     distanceFloor: 330,
-    src: "../../src/img/boss/bossLeft.png",
   },
-  {
-    id: 1,
-    state: "attack",
-    width: 509,
-    height: 666,
-    widthSize: 509,
-    heightSize: 666,
-    frameReset: 19,
-    initialFrame: 19,
-    stepFrames: 4,
+  Walk: {
+    image: "../../src/img/boss/boss_walk_left.png",
+    totalFrames: 10,
+    frameBuffer: 8,
+    distanceFloor: 330,
+  },
+  AttackRight: {
+    image: "../../src/img/boss/boss_attack_right.png",
+    totalFrames: 16,
+    frameBuffer: 10,
     distanceFloor: 660,
-    src: "../../src/img/boss/bossAttack.png",
   },
-  {
-    id: 2,
-    state: "idle",
-    width: 245.5,
-    height: 284,
-    widthSize: 245.5,
-    heightSize: 284,
-    frameReset: 11,
-    initialFrame: 11,
-    stepFrames: 6,
+  Attack: {
+    image: "../../src/img/boss/boss_attack_left.png",
+    totalFrames: 16,
+    frameBuffer: 10,
+    distanceFloor: 660,
+  },
+  Idle: {
+    image: "../../src/img/boss/boss_idle.png",
+    totalFrames: 10,
+    frameBuffer: 18,
     distanceFloor: 320,
-    src: "../../src/img/boss/bossIdle.png",
   },
-];
+};

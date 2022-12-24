@@ -3,79 +3,82 @@ import { MONSTERDB } from "../utils/monsterDB.js";
 import { Sprite } from "./sprite.js";
 
 export class Monsters extends Sprite {
-  constructor(ctx, randomStop) {
-    super(ctx);
-    this.xPosition = CANVAS_WIDTH;
-    this.yPosition = () => CANVAS_HEIGHT - this.distanceFloor;
+  constructor(randomStop) {
+    super();
     this.distanceFloor = 175;
-    this.width = 60;
-    this.height = 0;
 
-    this.gameFrame = 0;
-    this.finalFrames = 0;
-    this.initialState = 0;
+    this.position = {
+      xPosition: CANVAS_WIDTH,
+      yPosition: CANVAS_HEIGHT - this.distanceFloor,
+    };
+
+    this.xLocation = 70;
+    this.wLocation = 150;
+
+    this.states = MONSTERDB;
 
     this.isMonsterOut = false;
     this.isMonsterKilled = false;
     this.isNotAttacking = false;
+    this.isAttacked = false;
 
-    this.speed = Math.floor(Math.random() * 5) + 1;
-    this.lives = Math.floor(Math.random() * 5) + 3;
+    this.isAttacking = false;
+
+    this.setState = "";
+
+    this.speed = Math.floor(Math.random() * 3) + 1;
+    this.lives = Math.floor(Math.random() * 10) + 7;
     this.stop = 1;
     this.walk = 1;
     this.randomStop = randomStop;
     this.stoped = false;
-  }
 
-  draw() {
-    this.height = MONSTERDB[this.initialState].height;
-
-    super.draw(
-      MONSTERDB[this.initialState].src,
-      MONSTERDB[this.initialState].initialFrame * MONSTERDB[this.initialState].width,
-      0,
-      MONSTERDB[this.initialState].width,
-      MONSTERDB[this.initialState].height,
-      this.xPosition,
-      this.yPosition(),
-      MONSTERDB[this.initialState].widthSize,
-      MONSTERDB[this.initialState].heightSize
-    );
-  }
-
-  animateFrames() {
-    // super.animateFrames(0, PLAYERDB[this.state()].stepFrames, PLAYERDB[this.state()].initialFrame, 0, PLAYERDB[this.state()].frameReset);
-
-    if (this.gameFrame % MONSTERDB[this.initialState].stepFrames === 0) {
-      if (MONSTERDB[this.initialState].initialFrame <= this.finalFrames)
-        MONSTERDB[this.initialState].initialFrame = MONSTERDB[this.initialState].frameReset;
-
-      MONSTERDB[this.initialState].initialFrame--;
-      // console.log(PLAYERDB[this.state()].initialFrame)
-    }
-    this.gameFrame < 100 ? this.gameFrame++ : (this.gameFrame = 0);
+    this.switchSprite("Walk");
   }
 
   movement() {
-    if (this.xPosition === -MONSTERDB[this.initialState].width) this.isMonsterOut = true;
+    this.statesMonster();
+    if (this.position.xPosition <= -this.widthImg) this.isMonsterOut = true;
 
     if (this.stop > this.randomStop && !this.stoped) {
-      this.stoped = true;
+      this.setState = "stop";
       this.speed = 0;
-      this.distanceFloor = 190;
-      this.initialState = 3;
       this.isNotAttacking = true;
+      if (this.isMonsterKilled) this.setState = "dead";
 
       setTimeout(() => {
         this.isNotAttacking = false;
+        this.setState = "";
         this.stop = 0;
-        this.speed = 0.3;
-        this.distanceFloor = 175;
-        this.initialState = 0;
+        this.speed = 1;
       }, 5000);
     }
 
-    this.xPosition -= this.speed;
+    this.position.xPosition -= this.speed;
     this.stop++;
+  }
+
+  statesMonster() {
+    switch (this.setState) {
+      case "attack":
+        this.switchSprite("Attack");
+        setTimeout(() => {
+          this.setState = "";
+          this.speed = 1.3;
+        }, 200);
+        break;
+
+      case "stop":
+        this.switchSprite("Idle");
+        break;
+
+      case "dead":
+        this.switchSprite("Dead");
+        break;
+
+      case "":
+        this.switchSprite("Walk");
+        break;
+    }
   }
 }

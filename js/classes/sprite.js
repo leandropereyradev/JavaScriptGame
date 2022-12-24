@@ -1,23 +1,68 @@
+import { CTX } from "../utils/constants.js";
+
 export class Sprite {
-  constructor(ctx) {
-    this.ctx = ctx;
+  constructor(position, states, totalFrames, frameBuffer, scale, loop, yFrame = 0) {
+    this.position = position;
+
+    this.states = states;
+    this.totalFrames = totalFrames;
+    this.scale = scale;
+    this.currentFrame = 0;
+    this.elapsedFrames = 0;
+    this.frameBuffer = frameBuffer;
+    this.loop = loop;
+    this.yFrame = yFrame;
+
     this.image = new Image();
+    this.image.onload = () => {
+      this.loaded = true;
+      this.widthImg = this.image.width / this.totalFrames;
+      this.heightImg = this.image.height;
+    };
 
-    this.finalFrames = 0;
-    this.gameFrame = 0;
+    this.loaded = false;
   }
 
-  draw(imgSrc, xSprite, ySprite, width, height, xPosition, yPosition, widthSize, heightSize) {
-    this.image.src = imgSrc;
-    this.ctx.drawImage(this.image, xSprite, ySprite, width, height, xPosition, yPosition, widthSize, heightSize);
+  draw() {
+    if (!this.image) return;
+    const cropBox = {
+      position: {
+        x: this.currentFrame * this.widthImg,
+        y: this.yFrame,
+      },
+      width: this.widthImg,
+      height: this.image.height,
+    };
+    CTX.drawImage(
+      this.image,
+      cropBox.position.x,
+      cropBox.position.y,
+      cropBox.width,
+      cropBox.height,
+      this.position.xPosition,
+      this.position.yPosition,
+      this.widthImg * this.scale,
+      this.heightImg * this.scale
+    );
+
+    this.animateFrames();
   }
 
-  animateFrames(stepFrames, initialFrame, frameReset) {
-    if (this.gameFrame % stepFrames === 0) {
-      if (initialFrame <= this.finalFrames) initialFrame = frameReset;
-
-      initialFrame--;
+  animateFrames() {
+    this.elapsedFrames <= 200 ? this.elapsedFrames++ : (this.elapsedFrames = 0);
+    if (this.elapsedFrames % this.frameBuffer === 0) {
+      if (this.currentFrame < this.totalFrames - 1) this.currentFrame++;
+      else if (this.loop) this.currentFrame = 0;
     }
-    this.gameFrame < 100 ? this.gameFrame++ : (this.gameFrame = 0);
+  }
+
+  switchSprite(name) {
+    if (this.image.src === this.states[name].image) return;
+    this.image.src = this.states[name].image;
+    this.scale = this.states[name].scale ? this.states[name].scale : 1;
+    this.totalFrames = this.states[name].totalFrames ? this.states[name].totalFrames : 1;
+    this.frameBuffer = this.states[name].frameBuffer ? this.states[name].frameBuffer : 1;
+    this.loop = this.states[name].loop ? this.states[name].loop : true;
+    this.distanceFloor = this.states[name].distanceFloor ? this.states[name].distanceFloor : 0;
   }
 }

@@ -1,59 +1,73 @@
 import { BATSDB } from "../utils/batsDB.js";
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
+import { CANVAS_WIDTH } from "../utils/constants.js";
+import { Cages } from "./cages.js";
 import { Sprite } from "./sprite.js";
 
 export class Bats extends Sprite {
-  constructor(ctx, initialFrame, id) {
-    super(ctx);
-    this.yPosition = CANVAS_HEIGHT - 220;
-    this.xPosition = CANVAS_WIDTH - 10;
-    this.width = 90;
-    this.height = 60;
-    this.isBatOut = false;
+  constructor(positionBats, type) {
+    super();
+    this.position = {
+      xPosition: positionBats.x,
+      yPosition: positionBats.y,
+    };
+
+    this.states = BATSDB;
+    this.switchSprite(type);
+
     this.isBatFreed = false;
-    this.gameFrame = 0;
-    this.finalFrames = 0;
-    this.initialState = initialFrame;
-    this.speed = 1;
-    this.id = id;
+    this.isBatOut = false;
+
+    this.cageBack = new Cages();
+    this.cageBack.switchSprite("CageBack");
+
+    this.cageDoorClosed = new Cages();
+
+    this.wood = new Cages("WoodChain");
+    this.wood.switchSprite("WoodChain");
+
+    this.stopBatFinal = 10;
+    this.finalBack = new Cages();
+    this.finalBack.switchSprite("FinalBack");
+    this.finalBack.hard = 10;
+
+    this.finalDoor = new Cages();
+    this.finalDoor.switchSprite("FinalClose");
+    this.finalDoor.hard = 10;
+
+    this.cageSpeed = 1;
+    this.batSpeed = 1;
   }
 
-  draw() {
-    this.height = BATSDB[this.initialState].height;
-    this.width = BATSDB[this.initialState].width;
+  drawBats() {
+    this.wood.draw();
+    this.cageBack.draw();
+    this.draw();
 
-    super.draw(
-      BATSDB[this.initialState].src,
-      BATSDB[this.initialState].initialFrame * BATSDB[this.initialState].width,
-      0,
-      BATSDB[this.initialState].width,
-      BATSDB[this.initialState].height,
-      this.xPosition,
-      this.yPosition,
-      BATSDB[this.initialState].widthSize,
-      BATSDB[this.initialState].heightSize
-    );
-  }
+    this.cageDoorClosed.switchSprite(this.isBatFreed ? "DoorOpened" : "DoorClosed");
 
-  animateFrames() {
-    // super.animateFrames(0, PLAYERDB[this.state()].stepFrames, PLAYERDB[this.state()].initialFrame, 0, PLAYERDB[this.state()].frameReset);
-
-    if (this.gameFrame % BATSDB[this.initialState].stepFrames === 0) {
-      if (BATSDB[this.initialState].initialFrame <= this.finalFrames)
-        BATSDB[this.initialState].initialFrame = BATSDB[this.initialState].frameReset;
-
-      BATSDB[this.initialState].initialFrame--;
-      // console.log(PLAYERDB[this.state()].initialFrame)
-    }
-
-    this.gameFrame < 100 ? this.gameFrame++ : (this.gameFrame = 0);
+    this.cageDoorClosed.draw();
   }
 
   movement() {
-    if (this.xPosition <= -BATSDB[this.initialState].width || this.yPosition <= -BATSDB[this.initialState].height) this.isBatOut = true;
+    if (this.position.yPosition <= -this.heightImg * 2) this.batSpeed = 0;
 
-    if (this.isBatFreed) this.yPosition -= this.speed;
+    if (this.wood.position.xPosition <= -this.cageBack.widthImg) this.isBatOut = true;
 
-    this.xPosition -= this.speed;
+    if (this.isBatFreed) this.position.yPosition -= this.batSpeed;
+
+    this.position.xPosition -= this.batSpeed;
+    this.wood.position.xPosition -= this.cageSpeed;
+    this.cageBack.position.xPosition -= this.cageSpeed;
+    this.cageDoorClosed.position.xPosition -= this.cageSpeed;
+  }
+
+  final() {
+    this.finalBack.position.yPosition = 60;
+
+    this.finalDoor.position.yPosition = 60;
+
+    this.finalBack.position.xPosition -= this.cageSpeed;
+    this.finalDoor.position.xPosition -= this.cageSpeed;
+    if (this.finalBack.position.xPosition <= CANVAS_WIDTH - 250) this.cageSpeed = 0;
   }
 }

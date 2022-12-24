@@ -1,20 +1,31 @@
 import { CANVAS_WIDTH } from "../utils/constants.js";
+import { PLAYERDBR } from "../utils/playerDB.js";
 import { Sprite } from "./sprite.js";
 
 export class Hearts extends Sprite {
-  constructor(ctx) {
-    super(ctx);
+  constructor() {
+    super();
+    this.position = {
+      xPosition: CANVAS_WIDTH - 175,
+      yPosition: 10,
+    };
 
-    this.xPosition = CANVAS_WIDTH - 175;
-    this.yPosition = 10;
-    this.width = 168;
-    this.height = 28.5;
     this.yFrame = 0;
+
+    this.image.src = PLAYERDBR.Heart.image;
+    this.scale = PLAYERDBR.Heart.scale;
+    this.totalFrames = PLAYERDBR.Heart.totalFrames;
+    this.frameBuffer = PLAYERDBR.Heart.frameBuffer;
+    this.loop = false;
+
+    this.image.height = 28.5;
   }
 
   draw(lives) {
-    const image = "../../src/img/player/hearts.png";
     switch (lives) {
+      case 10:
+        this.yFrame = 0;
+        break;
       case 9:
         this.yFrame = 28;
         break;
@@ -46,6 +57,6 @@ export class Hearts extends Sprite {
         this.yFrame = 272;
         break;
     }
-    super.draw(image, 0, this.yFrame, this.width, this.height, this.xPosition, this.yPosition, this.width, this.height);
+    super.draw();
   }
 }

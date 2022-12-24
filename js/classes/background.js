@@ -1,8 +1,7 @@
-import { CANVAS_WIDTH } from "../utils/constants.js";
+import { CANVAS_WIDTH, CTX } from "../utils/constants.js";
 
 export class Background {
-  constructor(ctx, x, y, imgSrc, backgroundSpeed, x2, width, infinity, right = false, controled= false) {
-    this.ctx = ctx;
+  constructor(x, y, imgSrc, backgroundSpeed, x2, width, infinity, right = false, controled = false) {
     this.x = x;
     this.x2 = x2;
     this.y = y;
@@ -15,13 +14,13 @@ export class Background {
     this.backgroundSpeed = backgroundSpeed;
     this.infinity = infinity;
     this.right = right;
-    this.controled = controled
+    this.controled = controled;
   }
   draw() {
-    this.ctx.drawImage(this.image, this.x, this.y);
+    CTX.drawImage(this.image, this.x, this.y);
 
     if (this.infinity) {
-      this.ctx.drawImage(this.image2, this.x2, this.y);
+      CTX.drawImage(this.image2, this.x2, this.y);
     }
   }
 
