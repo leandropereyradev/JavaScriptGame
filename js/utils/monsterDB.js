@@ -27,4 +27,11 @@ export const MONSTERDB = {
     scale: 1,
     loop: true,
   },
+  Bomb: {
+    image: "../../src/img/monster/monster_bomb.png",
+    totalFrames: 6,
+    frameBuffer: 6,
+    scale: 1,
+    loop: true,
+  },
 };

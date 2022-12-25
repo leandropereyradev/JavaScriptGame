@@ -4,6 +4,8 @@ import { Monsters } from "./monsters.js";
 import { Bats } from "./bats.js";
 import { CANVAS_WIDTH, CANVAS_HEIGHT, CTX, selectBats } from "../utils/constants.js";
 import { Boss } from "./boss.js";
+import { MONSTERDB } from "../utils/monsterDB.js";
+import { SpiritBombs } from "./spiritBombs.js";
 
 export class Game {
   constructor() {
@@ -35,6 +37,8 @@ export class Game {
     this.batFreed = 0;
     this.tickBat = 60;
     this.boss = new Boss();
+
+    this.bones = [];
 
     //Background
     this.imgBackground = new Image();
@@ -107,6 +111,12 @@ export class Game {
       this.finalBatle();
 
       this.player.charAnimations();
+
+      this.bones.forEach((bone) => {
+        bone.xVelocity = 15;
+        bone.draw();
+        bone.move();
+      });
     }, 1000 / 60);
   }
 
@@ -150,6 +160,7 @@ export class Game {
     this.player.spiritBombs = this.player.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
 
     this.monsters = this.monsters.filter((monster) => !monster.isMonsterOut);
+    this.bones = this.bones.filter((bone) => !bone.isSpiritBombCollided);
 
     this.bats = this.bats.filter((bat) => !bat.isBatOut);
     this.finalBats = this.finalBats.filter((bat) => !bat.isBatOut);
@@ -164,12 +175,13 @@ export class Game {
   monstersAppears() {
     this.tickMonster--;
 
-    if (this.tickMonster <= 0) {
+    if (this.tickMonster <= 0 && !this.boss.isBossDead) {
       this.tickMonster = Math.floor(Math.random() * 400) + 100;
-      const randomStop = Math.floor(Math.random() * (800 - 100) + 100);
+
+      this.bones.push(new SpiritBombs(MONSTERDB, CANVAS_WIDTH, 500, false));
+
       if (!this.isFinal) {
-        const monster = new Monsters(randomStop);
-        this.monsters.push(monster);
+        this.monsters.push(new Monsters());
       }
     }
   }
@@ -198,13 +210,6 @@ export class Game {
             if (bg.controled) bg.backgroundSpeed = 0;
           });
         }, 3500);
-        if (!this.boss.isAttacking) {
-          if (this.boss.position.xPosition <= 550 - this.boss.xLocation) {
-            this.boss.setState = "idle";
-            this.boss.speed = 0;
-            this.boss.isAttacking = true;
-          }
-        }
       }
     }
   }
@@ -241,7 +246,6 @@ export class Game {
   }
 
   checkBombAndBOSS() {
-    console.log(this.boss.isBossDead);
     if (this.boss.isBossDead) return;
 
     this.player.spiritBombs.forEach((bomb) => {
@@ -277,32 +281,54 @@ export class Game {
   }
 
   checkCollisionsMonsters() {
-    if (!this.player.isDead) {
+    if (!this.player.isDead || !this.player.isTaked) {
       this.monsters.forEach((monster) => {
-        if (!monster.isNotAttacking) {
-          const colX =
-            monster.position.xPosition + monster.xLocation < this.player.position.xPosition + this.player.widthImg &&
-            monster.position.xPosition + monster.widthImg - this.player.widthImg > this.player.position.xPosition;
+        this.bones.forEach(bone =>{
+          if (!monster.isNotAttacking) {
+            const colXmonster =
+              monster.position.xPosition + monster.xLocation < this.player.position.xPosition + this.player.widthImg &&
+              monster.position.xPosition + monster.widthImg - this.player.widthImg > this.player.position.xPosition;
+  
+            const colYmonster = monster.position.yPosition < this.player.position.yPosition + this.player.heightImg;
 
-          const colY = monster.position.yPosition < this.player.position.yPosition + this.player.heightImg;
-
-          if (colX && colY) {
-            if (this.player.lives > 0) {
-              monster.setState = "attack";
-              this.player.takedHit = true;
-              if (!this.player.isTaked) {
-                this.player.position.xPosition -= 200;
-                this.player.lives -= 1;
-                this.player.isTaked = true;
+            const colXbone =
+              bone.position.xPosition < this.player.position.xPosition + this.player.widthImg &&
+              bone.position.xPosition + bone.widthImg - this.player.widthImg > this.player.position.xPosition;
+  
+            const colYbone = bone.position.yPosition < this.player.position.yPosition + this.player.heightImg;
+  
+            if (colXmonster && colYmonster) {
+              if (this.player.lives > 0) {
+                monster.setState = "attack";
+                this.player.takedHit = true;
+                if (!this.player.isTaked) {
+                  this.player.position.xPosition -= 200;
+                  this.player.lives -= 1;
+                  this.player.isTaked = true;
+                }
+  
+                setTimeout(() => {
+                  this.player.isTaked = false;
+                }, 3000);
               }
-
-              setTimeout(() => {
-                this.player.isTaked = false;
-              }, 2000);
+            }else if (colXbone && colYbone) {
+              if (this.player.lives > 0) {
+                bone.isSpiritBombCollided = true;
+                this.player.takedHit = true;
+                if (!this.player.isTaked) {
+                  this.player.lives -= 1;
+                  this.player.isTaked = true;
+                }
+  
+                setTimeout(() => {
+                  this.player.isTaked = false;
+                }, 3000);
+              }
             }
           }
-        }
-      });
+        
+        })
+        });
     }
   }
 
@@ -388,7 +414,6 @@ export class Game {
           switch (event.key) {
             case "ArrowLeft":
               this.player.key = event.key;
-              // this.bgSpeedControlled = 0
               break;
             case "ArrowRight":
               this.player.key = event.key;
@@ -428,7 +453,7 @@ export class Game {
               this.bgSpeedControlled = 0;
               break;
             case "Control":
-              if (!this.player.isDone) this.player.playerAttack();
+              if (!this.player.isDead) this.player.playerAttack();
           }
           break;
       }

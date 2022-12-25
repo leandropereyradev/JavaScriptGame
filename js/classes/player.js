@@ -51,7 +51,7 @@ export class Player extends Sprite {
   playerAttack() {
     const x = this.right ? this.position.xPosition : this.position.xPosition;
     const y = this.position.yPosition + 40;
-    const spiritBomb = new SpiritBombs(x, y, this.right);
+    const spiritBomb = new SpiritBombs(PLAYERDBR, x, y, this.right);
     this.spiritBombs.push(spiritBomb);
   }
 

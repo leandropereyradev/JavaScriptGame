@@ -43,6 +43,12 @@ export class Boss extends Sprite {
         this.speed = 1.5;
         this.setState = "walk";
       }
+    } else {
+      if (this.position.xPosition <= 550 - this.xLocation) {
+        this.setState = "idle";
+        this.speed = 0;
+        this.isAttacking = true;
+      }
     }
 
     this.position.xPosition -= this.speed;
