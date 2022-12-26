@@ -6,39 +6,40 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT, CTX, selectBats } from "../utils/constants
 import { Boss } from "./boss.js";
 import { MONSTERDB } from "../utils/monsterDB.js";
 import { SpiritBombs } from "./spiritBombs.js";
+import { DisplayInfo } from "./displayInfo.js";
 
 export class Game {
   constructor() {
     this.x = 0;
     this.y = 0;
     this.interval = null;
+    this.pauseInterval = null;
     this.pause = false;
+
+    this.batFreed = 0;
+    this.monstersKilled = 0;
+    this.liveAccumulator = 0;
 
     this.player = new Player();
 
-    this.liveAccumulator = 0;
-    this.isFinal = false;
+    this.display = new DisplayInfo();
 
-    this.monstersKilled = 0;
+    this.tickBat = 60;
     this.tickMonster = Math.floor(Math.random() * 500) + 100;
 
     this.bats = [];
-
     this.monsters = [];
-    this.finalCage = new Bats({ x: CANVAS_WIDTH - 10, y: CANVAS_HEIGHT - 250 }, "BlueBat");
+    this.bones = [];
+    this.boss = new Boss();
 
+    this.isFinal = false;
+    this.finalCage = new Bats({ x: CANVAS_WIDTH - 10, y: CANVAS_HEIGHT - 250 }, "BlueBat");
     this.finalBats = [];
     for (let i = 0; i < 100; i++) {
       let xPos = Math.floor(Math.random() * 170) + CANVAS_WIDTH - 20;
       let yPos = Math.floor(Math.random() * 350) + 150;
       this.finalBats.push(new Bats({ x: xPos, y: yPos }, selectBats()));
     }
-
-    this.batFreed = 0;
-    this.tickBat = 60;
-    this.boss = new Boss();
-
-    this.bones = [];
 
     //Background
     this.imgBackground = new Image();
@@ -61,7 +62,7 @@ export class Game {
     this.clouds = new Background(0, 60, this.imgSrc4, this.bgSpeed * 0.8, this.sizeBg, this.sizeBg, true);
 
     this.imgSrc4b = "../../src/img/background/clouds.png";
-    this.clouds2 = new Background(400, 250, this.imgSrc4b, this.bgSpeed * 0.1, this.sizeBg, this.sizeBg, true, true);
+    this.clouds2 = new Background(400, 250, this.imgSrc4b, this.bgSpeed * 0.4, this.sizeBg, this.sizeBg, true, true);
 
     this.imgSrc5 = "../../src/img/background/background1.png";
     this.bg3 = new Background(0, 56, this.imgSrc5, this.bgSpeedControlled * 0.5, this.sizeBg, this.sizeBg, true, false, true);
@@ -83,96 +84,73 @@ export class Game {
   }
 
   start() {
+    clearInterval(this.pauseInterval);
+    this.pauseInterval = undefined;
+
     this.interval = setInterval(() => {
       this.clear();
 
-      this.draw();
-
-      this.checkBombAndMonster();
+      CTX.drawImage(this.imgBackground, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      this.decorations.forEach((decoration) => {
+        decoration.draw();
+        decoration.animate();
+      });
 
       this.batsAppears();
+      this.monstersAndBonesAppears();
+      this.bossAppear();
+
       this.bats.forEach((bat) => {
         bat.drawBats();
         bat.movement();
       });
-
-      this.monstersAppears();
 
       this.monsters.forEach((monster) => {
         monster.draw();
         monster.movement();
       });
 
-      this.checkCollisionsMonsters();
-
-      this.checkBombAndCage();
-
-      this.bossAppear();
-      this.finalBatle();
-
-      this.player.charAnimations();
-
       this.bones.forEach((bone) => {
         bone.xVelocity = 15;
         bone.draw();
         bone.move();
       });
+
+      this.checkBombAndCage();
+      this.checkBombAndMonster();
+      this.checkCollisionsMonstersAndBones();
+
+      this.finalBatle();
+
+      if (this.isFinal) {
+        if (this.boss.isBossAppear) {
+          this.finalCage.finalBack.draw();
+
+          this.finalBats.forEach((bat) => {
+            bat.draw();
+            bat.position.xPosition -= bat.batSpeed;
+            if (!this.finalCage.isBatFreed && this.finalCage.cageSpeed === 0) bat.batSpeed = 0;
+            if (bat.position.xPosition < -bat.widthImg) bat.isBatOut = true;
+          });
+          this.finalCage.finalDoor.switchSprite(this.finalCage.isBatFreed ? "FinalOpen" : "FinalClose");
+          this.finalCage.finalDoor.draw();
+
+          this.finalCage.final();
+
+          this.boss.draw();
+          this.boss.bossAnimations();
+          this.checkBombAndBOSS();
+        }
+      }
+
+      this.player.charAnimations();
+
+      this.displayStatus();
+      if (this.boss.isBossDead && this.boss.position.xPosition > CANVAS_WIDTH) this.gameOver();
     }, 1000 / 60);
   }
 
-  draw() {
-    CTX.drawImage(this.imgBackground, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    this.decorations.forEach((decoration) => {
-      decoration.draw();
-      decoration.animate();
-    });
-
-    if (this.isFinal) {
-      if (this.boss.isBossAppear) {
-        this.finalCage.finalBack.draw();
-
-        this.finalBats.forEach((bat) => {
-          bat.draw();
-          bat.position.xPosition -= bat.batSpeed;
-          if (!this.finalCage.isBatFreed && this.finalCage.cageSpeed === 0) bat.batSpeed = 0;
-          if (bat.position.xPosition < -bat.widthImg) bat.isBatOut = true;
-        });
-        this.finalCage.finalDoor.switchSprite(this.finalCage.isBatFreed ? "FinalOpen" : "FinalClose");
-        this.finalCage.finalDoor.draw();
-
-        this.finalCage.final();
-
-        this.boss.draw();
-        this.boss.bossAnimations();
-        this.checkBombAndBOSS();
-      }
-
-      if (this.boss.isBossDead && this.boss.position.xPosition > CANVAS_WIDTH) this.gameOver();
-    }
-
-    this.displayStatus();
-  }
-
-  clear() {
-    CTX.clearRect(this.x, this.y, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    this.player.spiritBombs = this.player.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
-
-    this.monsters = this.monsters.filter((monster) => !monster.isMonsterOut);
-    this.bones = this.bones.filter((bone) => !bone.isSpiritBombCollided);
-
-    this.bats = this.bats.filter((bat) => !bat.isBatOut);
-    this.finalBats = this.finalBats.filter((bat) => !bat.isBatOut);
-  }
-
-  pauseGame() {
-    clearInterval(this.interval);
-    this.interval = undefined;
-    this.pause = true;
-  }
-
-  monstersAppears() {
+  monstersAndBonesAppears() {
     this.tickMonster--;
 
     if (this.tickMonster <= 0 && !this.boss.isBossDead) {
@@ -200,7 +178,7 @@ export class Game {
   }
 
   bossAppear() {
-    if (this.batFreed >= 2) {
+    if (this.batFreed >= 20 || this.monstersKilled >= 30) {
       this.isFinal = true;
       if (!this.monsters.length && !this.bats.length) {
         this.boss.isBossAppear = true;
@@ -280,58 +258,6 @@ export class Game {
     });
   }
 
-  checkCollisionsMonsters() {
-    if (!this.player.isDead || !this.player.isTaked) {
-      this.monsters.forEach((monster) => {
-        this.bones.forEach(bone =>{
-          if (!monster.isNotAttacking) {
-            const colXmonster =
-              monster.position.xPosition + monster.xLocation < this.player.position.xPosition + this.player.widthImg &&
-              monster.position.xPosition + monster.widthImg - this.player.widthImg > this.player.position.xPosition;
-  
-            const colYmonster = monster.position.yPosition < this.player.position.yPosition + this.player.heightImg;
-
-            const colXbone =
-              bone.position.xPosition < this.player.position.xPosition + this.player.widthImg &&
-              bone.position.xPosition + bone.widthImg - this.player.widthImg > this.player.position.xPosition;
-  
-            const colYbone = bone.position.yPosition < this.player.position.yPosition + this.player.heightImg;
-  
-            if (colXmonster && colYmonster) {
-              if (this.player.lives > 0) {
-                monster.setState = "attack";
-                this.player.takedHit = true;
-                if (!this.player.isTaked) {
-                  this.player.position.xPosition -= 200;
-                  this.player.lives -= 1;
-                  this.player.isTaked = true;
-                }
-  
-                setTimeout(() => {
-                  this.player.isTaked = false;
-                }, 3000);
-              }
-            }else if (colXbone && colYbone) {
-              if (this.player.lives > 0) {
-                bone.isSpiritBombCollided = true;
-                this.player.takedHit = true;
-                if (!this.player.isTaked) {
-                  this.player.lives -= 1;
-                  this.player.isTaked = true;
-                }
-  
-                setTimeout(() => {
-                  this.player.isTaked = false;
-                }, 3000);
-              }
-            }
-          }
-        
-        })
-        });
-    }
-  }
-
   checkBombAndMonster() {
     this.monsters.forEach((monster) => {
       if (!monster.isMonsterKilled) {
@@ -356,7 +282,7 @@ export class Game {
           monster.setState = "dead";
           setTimeout(() => {
             this.monsters = this.monsters.filter((monster) => !monster.isMonsterKilled);
-          }, 1000);
+          }, 800);
         }
       }
     });
@@ -396,15 +322,98 @@ export class Game {
     });
   }
 
-  displayStatus() {
-    CTX.fillStyle = "white";
-    CTX.font = "20px Helvetica";
-    CTX.fillText("Monsters Killed: " + this.monstersKilled, 20, 50);
-    CTX.fillText("Bats Freed: " + this.batFreed, 20, 80);
+  checkCollisionsMonstersAndBones() {
+    if (!this.player.isDead || !this.player.isTaked) {
+      this.monsters.forEach((monster) => {
+        if (!monster.isNotAttacking) {
+          const colXmonster =
+            monster.position.xPosition + monster.xLocation < this.player.position.xPosition + this.player.widthImg &&
+            monster.position.xPosition + monster.widthImg - this.player.widthImg > this.player.position.xPosition;
+
+          const colYmonster = monster.position.yPosition < this.player.position.yPosition + this.player.heightImg;
+
+          if (colXmonster && colYmonster) {
+            if (this.player.lives > 0) {
+              monster.setState = "attack";
+              this.player.takedHit = true;
+              if (!this.player.isTaked) {
+                this.player.position.xPosition -= 200;
+                this.player.lives -= 1;
+                this.player.isTaked = true;
+              }
+
+              setTimeout(() => {
+                this.player.isTaked = false;
+              }, 3000);
+            }
+          }
+        }
+      });
+      this.bones.forEach((bone) => {
+        const colXbone =
+          bone.position.xPosition < this.player.position.xPosition + this.player.widthImg &&
+          bone.position.xPosition + bone.widthImg - this.player.widthImg > this.player.position.xPosition;
+
+        const colYbone = bone.position.yPosition < this.player.position.yPosition + this.player.heightImg;
+
+        if (colXbone && colYbone) {
+          if (this.player.lives > 0) {
+            bone.isSpiritBombCollided = true;
+            this.player.takedHit = true;
+            if (!this.player.isTaked) {
+              this.player.lives -= 1;
+              this.player.isTaked = true;
+            }
+
+            setTimeout(() => {
+              this.player.isTaked = false;
+            }, 3000);
+          }
+        }
+      });
+    }
+  }
+
+  clear() {
+    CTX.clearRect(this.x, this.y, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    this.player.spiritBombs = this.player.spiritBombs.filter((bomb) => !bomb.isSpiritBombCollided);
+
+    this.monsters = this.monsters.filter((monster) => !monster.isMonsterOut);
+    this.bones = this.bones.filter((bone) => !bone.isSpiritBombCollided);
+
+    this.bats = this.bats.filter((bat) => !bat.isBatOut);
+    this.finalBats = this.finalBats.filter((bat) => !bat.isBatOut);
+  }
+
+  pauseGame() {
+    clearInterval(this.interval);
+    this.interval = undefined;
+    this.pause = true;
+
+    this.pauseInterval = setInterval(() => {
+      this.clear();
+      this.display.gamePaused();
+    }, 1000 / 60);
   }
 
   gameOver() {
-    this.pauseGame();
+    this.player.isWinner = true;
+    if (this.boss.isBossDead) {
+      this.display.bats_Freed = this.batFreed;
+      this.display.monsters_Killed = this.monstersKilled;
+      this.display.ghostWon();
+    }
+  }
+
+  displayStatus() {
+    this.display.bats_Freed = this.batFreed;
+    this.display.monsters_Killed = this.monstersKilled;
+    this.display.displaying();
+
+    if (this.player.isDead) {
+      this.display.ghostIsDead();
+    }
   }
 
   onKeyEvent(event) {
@@ -453,7 +462,7 @@ export class Game {
               this.bgSpeedControlled = 0;
               break;
             case "Control":
-              if (!this.player.isDead) this.player.playerAttack();
+              if (!this.player.isDead && !this.player.isWinner) this.player.playerAttack();
           }
           break;
       }

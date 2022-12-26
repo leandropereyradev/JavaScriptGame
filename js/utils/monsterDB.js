@@ -20,15 +20,8 @@ export const MONSTERDB = {
     scale: 1,
     loop: true,
   },
-  Idle: {
-    image: "../../src/img/monster/monster_idle.png",
-    totalFrames: 12,
-    frameBuffer: 6,
-    scale: 1,
-    loop: true,
-  },
   Bomb: {
-    image: "../../src/img/monster/monster_bomb.png",
+    image: "../../src/img/monster/monster_bones.png",
     totalFrames: 6,
     frameBuffer: 6,
     scale: 1,

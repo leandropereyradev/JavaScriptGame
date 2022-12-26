@@ -8,7 +8,7 @@ export class SpiritBombs extends Sprite {
     this.position = { xPosition: this.direction ? xPositionPlayer : xPositionPlayer - 40, yPosition: yPositionPlayer };
     this.xVelocity = 10;
 
-    this.states = DataBase
+    this.states = DataBase;
 
     this.image.src = DataBase.Bomb.image;
     this.scale = DataBase.Bomb.scale;

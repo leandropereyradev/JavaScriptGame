@@ -20,6 +20,7 @@ export class Player extends Sprite {
     this.isDone = false;
     this.takedHit = false;
     this.isTaked = false;
+    this.isWinner = false
 
     this.xVelocity = 5;
     this.speed = 0;
@@ -56,7 +57,7 @@ export class Player extends Sprite {
   }
 
   movement() {
-    if (!this.isDead) {
+    if (!this.isDead && !this.isWinner) {
       switch (this.key) {
         case "ArrowRight":
           this.right = true;
@@ -108,7 +109,7 @@ export class Player extends Sprite {
     if (!this.onFloor()) {
       this.switchSprite("Run");
       this.yVertical += this.gravity;
-      if (this.key === "Control") {
+      if (this.key === "Control" && !this.isWinner) {
         this.switchSprite("Attack");
       }
     } else {
