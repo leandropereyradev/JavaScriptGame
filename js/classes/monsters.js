@@ -36,7 +36,6 @@ export class Monsters extends Sprite {
     }
 
     this.position.xPosition -= this.speed;
-    this.stop++;
   }
 
   statesMonster() {

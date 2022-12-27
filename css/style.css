@@ -1,3 +1,8 @@
+@font-face {
+  font-family: Ghost;
+  src: url(/src/fonts/ghost_Nest.ttf);
+}
+
 * {
   padding: 0;
   margin: 0;
@@ -6,16 +11,148 @@
 
 html {
   background-color: black;
+  color: aliceblue;
+}
+
+body::-webkit-scrollbar {
+  width: 4px;
+}
+
+body::-webkit-scrollbar-track {
+  background: rgb(0, 0, 0);
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: rgb(214, 214, 203);
+  border-radius: 20px;
+}
+
+.container {
+  max-width: 1024px;
+  margin: auto;
+}
+
+.spider {
+  position: absolute;
+}
+
+.moon {
+  z-index: -1;
+  position: absolute;
+  right: 0;
+}
+
+.forest {
+  width: 100%;
+  position: absolute;
+  z-index: -1;
+}
+
+h1 {
+  font-family: Ghost;
+  text-align: center;
+  font-size: 8rem;
+  font-weight: 100;
+  padding: 3rem 0 1rem 0;
+}
+
+.info-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-container .info-game {
+  margin: 2rem auto 1rem auto;
+  font-size: 2rem;
+  text-align: justify;
+  line-height: 3rem;
+  text-shadow: #000 1px 0 10px;
+}
+
+.info-container span {
+  font-size: 3rem;
+  font-style: italic;
+  margin-bottom: 5rem;
+  text-align: center;
+}
+
+button {
+  width: 15rem;
+  align-self: center;
+  background: none;
+  border-radius: 15px 225px 255px 15px 15px 255px 225px 15px;
+  border-style: solid;
+  border-width: 2px;
+  box-shadow: rgba(255, 255, 255, 0.514) 15px 28px 25px -18px;
+  box-sizing: border-box;
+  color: aliceblue;
+  cursor: pointer;
+  font-family: Ghost;
+  font-size: 4rem;
+  letter-spacing: 2px;
+  line-height: 40px;
+  padding: 1rem;
+  transition: all 235ms ease-in-out;
+  border-color: aliceblue;
+  border-bottom-left-radius: 15px 255px;
+  border-bottom-right-radius: 225px 15px;
+  border-top-left-radius: 255px 15px;
+  border-top-right-radius: 15px 225px;
+  margin-bottom: 6rem;
+}
+
+button:hover {
+  box-shadow: rgba(0, 0, 0, .3) 2px 8px 8px -5px;
+  transform: translate3d(0, 2px, 0);
+}
+
+.info-container .img-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 4rem;
+}
+
+.info-container .img-container .info-capture {
+  font-size: 1.8rem;
+  font-style: italic;
+  text-align: justify;
+  padding-inline: 3rem;
+  margin: auto 0;
+  line-height: 3rem;
+}
+
+.info-container .img-container img {
+  max-width: 100%;
+}
+
+.footer {
+  position: relative;
+  background-image: url('/src/img/background/background1.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  width: 100%;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.credits {
+  padding-bottom: 1rem;
+  letter-spacing: 2px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .canvas-container {
-  height: 100vh;
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
+  margin-bottom: -25rem;
 }
 
 #canvas {
   border: 1px solid white;
   display: inline;
+  z-index: 10;
 }

@@ -78,8 +78,8 @@ export class DisplayInfo {
     this.ghost_won.draw();
 
     CTX.fillStyle = "white";
-    CTX.fillText(this.monsters_Killed, 375, 325);
-    CTX.fillText(this.bats_Freed, 160, 398);
+    CTX.fillText(this.bats_Freed, 375, 325);
+    CTX.fillText(this.monsters_Killed, 160, 398);
   }
 
   gamePaused() {

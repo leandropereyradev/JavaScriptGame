@@ -2,7 +2,12 @@ import { Game } from "./classes/game.js";
 
 const game = new Game();
 
-game.start();
+document.querySelector("#start-button").onclick = () => {
+  document.querySelector(".info-container").style.display = "none";
+  document.querySelector(".canvas-container").style.display = "flex";
+
+  game.pauseGame();
+};
 
 document.addEventListener("keydown", (e) => {
   game.onKeyEvent(e);
