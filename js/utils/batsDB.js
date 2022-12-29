@@ -21,17 +21,17 @@ export const BATSDB = {
   },
   FinalBack: {
     image: "../../src/img/bat/cage_back_final.png",
-    scale: 2,
+    scale: 1.8,
     loop: false,
   },
   FinalClose: {
     image: "../../src/img/bat/cage_front_close_final.png",
-    scale: 2,
+    scale: 1.8,
     loop: false,
   },
   FinalOpen: {
     image: "../../src/img/bat/cage_front_open_final.png",
-    scale: 2,
+    scale: 1.8,
     loop: false,
   },
   BlackBat: {

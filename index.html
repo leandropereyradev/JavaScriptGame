@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="shortcut icon" href="icon.png">
-    <title>The Wonder Ghost</title>
+    <title>Wonder Ghost</title>
   </head>
   <body>
     <img src="/src/img/displayInfo/spiderwebBG.png" alt="spider" class="spider">
@@ -26,9 +26,9 @@
           <div class="info-capture">
             <p>We accompany our hero through the cemetery to free his bat
               friends trapped in cages. Our Wonder Ghost throws energy
-              SpiritBombs to defend itself.!</p>
+              SpiritBombs to defend itself!</p>
           </div>
-          <div>
+          <div class="first-img">
             <img src="/src/img/displayInfo/image1.jpg" alt="Ghost">
           </div>
         </div>
@@ -43,13 +43,25 @@
               have to be released. Join and we will win!</p>
           </div>
         </div>
+        <div class="score">
+          <h3>Ghostcores</h3>
+          <p>Here you have the data of each battle that you have fought with
+            Wonder Ghost.</p>
+          <div class="score-table">
+            <div class="header"><p>#</p></div>
+            <div class="header"><p>Name</p></div>
+            <div class="header"><p>Bats Freed</p></div>
+            <div class="header"><p>Rockstars</p></div>
+          </div>
+          <div id="score"></div>
+        </div>
       </div>
       <div class="canvas-container">
         <canvas id="canvas"></canvas>
       </div>
     </div>
     <div class="footer">
-      <p class="credits">www.LeandroPereyra.com</p>
+      <p class="landing">www.LeandroPereyra.com</p>
     </div>
     <script type="module" src="./js/index.js"></script>
   </body>

@@ -15,10 +15,13 @@ export class Game {
     this.interval = null;
     this.pauseInterval = null;
     this.pause = false;
+    this.storage = false;
+    this.score = [];
 
     this.batFreed = 0;
     this.monstersKilled = 0;
     this.liveAccumulator = 0;
+    this.namePlayer = "";
 
     this.player = new Player();
 
@@ -36,8 +39,8 @@ export class Game {
     this.finalCage = new Bats({ x: CANVAS_WIDTH - 10, y: CANVAS_HEIGHT - 250 }, "BlueBat");
     this.finalBats = [];
     for (let i = 0; i < 100; i++) {
-      let xPos = Math.floor(Math.random() * 170) + CANVAS_WIDTH - 20;
-      let yPos = Math.floor(Math.random() * 350) + 150;
+      let xPos = Math.floor(Math.random() * 150) + CANVAS_WIDTH - 20;
+      let yPos = Math.floor(Math.random() * 310) + 140;
       this.finalBats.push(new Bats({ x: xPos, y: yPos }, selectBats()));
     }
 
@@ -156,7 +159,7 @@ export class Game {
     if (this.tickMonster <= 0 && !this.boss.isBossDead) {
       this.tickMonster = Math.floor(Math.random() * 400) + 100;
 
-      this.bones.push(new SpiritBombs(MONSTERDB, CANVAS_WIDTH, 500, false));
+      this.bones.push(new SpiritBombs(MONSTERDB, CANVAS_WIDTH, 450, false));
 
       if (!this.isFinal) {
         this.monsters.push(new Monsters());
@@ -402,13 +405,47 @@ export class Game {
     if (this.boss.isBossDead) {
       this.display.bats_Freed = this.batFreed;
       this.display.monsters_Killed = this.monstersKilled;
+      this.display.name = this.namePlayer;
+
       this.display.ghostWon();
+
+      this.setLocalStorage();
+    }
+  }
+
+  setLocalStorage() {
+    if (!this.storage) {
+      this.score.push({
+        name: this.namePlayer,
+        bats: this.batFreed,
+        zombies: this.monstersKilled,
+      });
+
+      if (localStorage.getItem("score")) {
+        this.score = JSON.parse(localStorage.getItem("score"));
+
+        this.score = [
+          ...this.score,
+          {
+            name: this.namePlayer,
+            bats: this.batFreed,
+            zombies: this.monstersKilled,
+          },
+        ];
+
+        localStorage.setItem("score", JSON.stringify(this.score));
+      } else {
+        localStorage.setItem("score", JSON.stringify(this.score));
+      }
+
+      this.storage = true;
     }
   }
 
   displayStatus() {
     this.display.bats_Freed = this.batFreed;
     this.display.monsters_Killed = this.monstersKilled;
+    this.display.name = this.namePlayer;
     this.display.displaying();
 
     if (this.player.isDead) {

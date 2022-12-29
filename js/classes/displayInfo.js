@@ -5,10 +5,11 @@ export class DisplayInfo {
   constructor() {
     this.bats_Freed = 0;
     this.monsters_Killed = 0;
+    this.name = "";
 
     this.bats = new Info(15, 30);
     this.monster_killed = new Info(15, 90);
-    this.spider_Web = new Info(770, 455);
+    this.spider_Web = new Info(770, 395);
     this.ghost_dead = new Info();
     this.ghost_dead_keys = new Info();
     this.ghost_won = new Info();
@@ -78,8 +79,9 @@ export class DisplayInfo {
     this.ghost_won.draw();
 
     CTX.fillStyle = "white";
-    CTX.fillText(this.bats_Freed, 375, 325);
-    CTX.fillText(this.monsters_Killed, 160, 398);
+    CTX.fillText(`${this.name}!`, 650, 260);
+    CTX.fillText(this.bats_Freed, 165, 398);
+    CTX.fillText(this.monsters_Killed, 165, 450);
   }
 
   gamePaused() {

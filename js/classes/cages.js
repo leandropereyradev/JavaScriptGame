@@ -9,7 +9,7 @@ export class Cages extends Sprite {
 
     this.position = {
       xPosition: this.type === "WoodChain" ? 1007 : 990,
-      yPosition: this.type === "WoodChain" ? 160 : 260,
+      yPosition: this.type === "WoodChain" ? 100 : 200,
     };
 
     this.hard = Math.floor(Math.random() * 4) + 2;

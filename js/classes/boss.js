@@ -8,7 +8,7 @@ export class Boss extends Sprite {
 
     this.position = {
       xPosition: CANVAS_WIDTH + 400,
-      yPosition: 0,
+      yPosition: -80,
     };
 
     this.states = BOSSDB;
