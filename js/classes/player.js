@@ -1,5 +1,6 @@
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from "../utils/constants.js";
 import { PLAYERDBL, PLAYERDBR } from "../utils/playerDB.js";
+import { sounds } from "../utils/sounds.js";
 import { Hearts } from "./hearts.js";
 import { SpiritBombs } from "./spiritBombs.js";
 import { Sprite } from "./sprite.js";
@@ -20,7 +21,7 @@ export class Player extends Sprite {
     this.isDone = false;
     this.takedHit = false;
     this.isTaked = false;
-    this.isWinner = false
+    this.isWinner = false;
 
     this.xVelocity = 5;
     this.speed = 0;
@@ -52,7 +53,7 @@ export class Player extends Sprite {
   playerAttack() {
     const x = this.right ? this.position.xPosition : this.position.xPosition;
     const y = this.position.yPosition + 40;
-    const spiritBomb = new SpiritBombs(PLAYERDBR, x, y, this.right);
+    const spiritBomb = new SpiritBombs(PLAYERDBR, x, y, this.right, "bomb");
     this.spiritBombs.push(spiritBomb);
   }
 
@@ -84,6 +85,7 @@ export class Player extends Sprite {
         case "":
           if (this.takedHit) {
             this.switchSprite("TakeHits");
+            sounds.playerHurts.play();
 
             setTimeout(() => {
               this.takedHit = false;

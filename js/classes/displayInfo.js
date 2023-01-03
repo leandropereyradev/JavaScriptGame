@@ -79,6 +79,7 @@ export class DisplayInfo {
     this.ghost_won.draw();
 
     CTX.fillStyle = "white";
+    CTX.textAlign = "start";
     CTX.fillText(`${this.name}!`, 650, 260);
     CTX.fillText(this.bats_Freed, 165, 398);
     CTX.fillText(this.monsters_Killed, 165, 450);
@@ -101,5 +102,22 @@ export class DisplayInfo {
       yPosition: CANVAS_HEIGHT / 2 - this.paused_keys.heightImg / 2,
     };
     this.paused_keys.draw();
+  }
+
+  bossAppears() {
+    CTX.fillStyle = "rgba(0, 0, 0, 0.5)";
+    CTX.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    this.ghost_won.switchSprite("BossAppears");
+    this.ghost_won.position = {
+      xPosition: CANVAS_WIDTH / 2 - this.ghost_won.widthImg / 2,
+      yPosition: CANVAS_HEIGHT / 2 - this.ghost_won.heightImg / 2,
+    };
+    this.ghost_won.draw();
+
+    CTX.fillStyle = "white";
+    CTX.font = "80px ghost";
+    CTX.textAlign = "center";
+    CTX.fillText(`${this.name}! Be careful, please!`, CANVAS_WIDTH / 2, 80);
   }
 }

@@ -1,5 +1,6 @@
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
 import { MONSTERDB } from "../utils/monsterDB.js";
+import { sounds } from "../utils/sounds.js";
 import { Sprite } from "./sprite.js";
 
 export class Monsters extends Sprite {
@@ -27,12 +28,21 @@ export class Monsters extends Sprite {
     this.lives = Math.floor(Math.random() * 5) + 3;
 
     this.switchSprite("Walk");
+
+    this.stopIdleSound = false;
+    this.stopDeadSound = false;
+    this.stopAttackSound = false;
   }
 
   movement() {
     this.statesMonster();
     if (this.position.xPosition <= -this.widthImg) {
       this.isMonsterOut = true;
+    }
+
+    if (!this.stopIdleSound) {
+      sounds.monsterAppears.play();
+      this.stopIdleSound = true;
     }
 
     this.position.xPosition -= this.speed;
@@ -42,14 +52,23 @@ export class Monsters extends Sprite {
     switch (this.setState) {
       case "attack":
         this.switchSprite("Attack");
+        if (!this.stopAttackSound) {
+          sounds.monsterAttack.play();
+          this.stopAttackSound = true;
+        }
         setTimeout(() => {
           this.setState = "";
           this.speed = 1.3;
+          this.stopAttackSound = false;
         }, 200);
         break;
 
       case "dead":
         this.switchSprite("Dead");
+        if (!this.stopDeadSound) {
+          sounds.monsterDead.play();
+          this.stopDeadSound = true;
+        }
         break;
 
       case "":

@@ -63,6 +63,5 @@ export class Sprite {
     this.totalFrames = this.states[name].totalFrames ? this.states[name].totalFrames : 1;
     this.frameBuffer = this.states[name].frameBuffer ? this.states[name].frameBuffer : 1;
     this.loop = this.states[name].loop ? this.states[name].loop : true;
-    this.distanceFloor = this.states[name].distanceFloor ? this.states[name].distanceFloor : 0;
   }
 }

@@ -1,8 +1,19 @@
 import { Game } from "./classes/game.js";
+import { sounds } from "./utils/sounds.js";
+
+// let context;
+// window.onload = function () {
+//   context = new AudioContext();
+// };
 
 const game = new Game();
+let gameStarted = false;
 
 document.querySelector("#start-button").onclick = () => {
+  // context.resume().then(() => {
+  //   console.log("Playback resumed successfully");
+  // });
+
   const name = prompt("Please enter your name");
   const nameFixed = name.charAt(0).toUpperCase() + name.toLowerCase().slice(1);
 
@@ -16,15 +27,18 @@ document.querySelector("#start-button").onclick = () => {
   document.querySelector(".canvas-container").style.display = "Flex";
   document.querySelector(".footer").style.position = "absolute";
 
+  gameStarted = true;
+
+  sounds.backgoundSound.play();
   game.pauseGame();
 };
 
 document.addEventListener("keydown", (e) => {
-  game.onKeyEvent(e);
+  if (gameStarted) game.onKeyEvent(e);
 });
 
 document.addEventListener("keyup", (e) => {
-  game.onKeyEvent(e);
+  if (gameStarted) game.onKeyEvent(e);
 });
 
 const scoreElement = document.getElementById("score");

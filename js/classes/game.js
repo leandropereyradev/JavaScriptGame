@@ -7,6 +7,7 @@ import { Boss } from "./boss.js";
 import { MONSTERDB } from "../utils/monsterDB.js";
 import { SpiritBombs } from "./spiritBombs.js";
 import { DisplayInfo } from "./displayInfo.js";
+import { sounds } from "../utils/sounds.js";
 
 export class Game {
   constructor() {
@@ -17,6 +18,7 @@ export class Game {
     this.pause = false;
     this.storage = false;
     this.score = [];
+    this.stop = false;
 
     this.batFreed = 0;
     this.monstersKilled = 0;
@@ -88,7 +90,7 @@ export class Game {
 
   start() {
     clearInterval(this.pauseInterval);
-    this.pauseInterval = undefined;
+    this.pauseInterval = null;
 
     this.interval = setInterval(() => {
       this.clear();
@@ -100,7 +102,8 @@ export class Game {
       });
 
       this.batsAppears();
-      this.monstersAndBonesAppears();
+      this.monstersAppears();
+      this.bonesAppears();
       this.bossAppear();
 
       this.bats.forEach((bat) => {
@@ -113,38 +116,36 @@ export class Game {
         monster.movement();
       });
 
-      this.bones.forEach((bone) => {
-        bone.xVelocity = 15;
-        bone.draw();
-        bone.move();
-      });
-
       this.checkBombAndCage();
       this.checkBombAndMonster();
       this.checkCollisionsMonstersAndBones();
 
       this.finalBatle();
 
-      if (this.isFinal) {
-        if (this.boss.isBossAppear) {
-          this.finalCage.finalBack.draw();
+      if (this.isFinal && this.boss.isBossAppear) {
+        this.finalCage.finalBack.draw();
 
-          this.finalBats.forEach((bat) => {
-            bat.draw();
-            bat.position.xPosition -= bat.batSpeed;
-            if (!this.finalCage.isBatFreed && this.finalCage.cageSpeed === 0) bat.batSpeed = 0;
-            if (bat.position.xPosition < -bat.widthImg) bat.isBatOut = true;
-          });
-          this.finalCage.finalDoor.switchSprite(this.finalCage.isBatFreed ? "FinalOpen" : "FinalClose");
-          this.finalCage.finalDoor.draw();
+        this.finalBats.forEach((bat) => {
+          bat.draw();
+          bat.position.xPosition -= bat.batSpeed;
+          if (!this.finalCage.isBatFreed && this.finalCage.cageSpeed === 0) bat.batSpeed = 0;
+          if (bat.position.xPosition < -bat.widthImg) bat.isBatOut = true;
+        });
+        this.finalCage.finalDoor.switchSprite(this.finalCage.isBatFreed ? "FinalOpen" : "FinalClose");
+        this.finalCage.finalDoor.draw();
 
-          this.finalCage.final();
+        this.finalCage.final();
 
-          this.boss.draw();
-          this.boss.bossAnimations();
-          this.checkBombAndBOSS();
-        }
+        this.boss.draw();
+        this.boss.bossAnimations();
+        this.checkBombAndBOSS();
       }
+
+      this.bones.forEach((bone) => {
+        bone.xVelocity = 15;
+        bone.draw();
+        bone.move();
+      });
 
       this.player.charAnimations();
 
@@ -153,17 +154,25 @@ export class Game {
     }, 1000 / 60);
   }
 
-  monstersAndBonesAppears() {
+  monstersAppears() {
     this.tickMonster--;
 
     if (this.tickMonster <= 0 && !this.boss.isBossDead) {
       this.tickMonster = Math.floor(Math.random() * 400) + 100;
 
-      this.bones.push(new SpiritBombs(MONSTERDB, CANVAS_WIDTH, 450, false));
-
       if (!this.isFinal) {
         this.monsters.push(new Monsters());
       }
+    }
+  }
+
+  bonesAppears() {
+    this.tickMonster--;
+
+    if (this.tickMonster <= 0 && !this.boss.isBossDead) {
+      this.tickMonster = Math.floor(Math.random() * 400) + 100;
+
+      this.bones.push(new SpiritBombs(MONSTERDB, CANVAS_WIDTH, 450, false, "bone"));
     }
   }
 
@@ -183,6 +192,7 @@ export class Game {
   bossAppear() {
     if (this.batFreed >= 20 || this.monstersKilled >= 30) {
       this.isFinal = true;
+
       if (!this.monsters.length && !this.bats.length) {
         this.boss.isBossAppear = true;
 
@@ -239,6 +249,7 @@ export class Game {
       if (colX && colY) {
         if (this.boss.lives > 0) bomb.isSpiritBombCollided = true;
         this.boss.lives -= 1;
+        sounds.bossHit.play();
         if (this.boss.position.xPosition + this.boss.xLocation > this.player.position.xPosition) {
           this.boss.setState = "walk";
           this.boss.speed = 1.5;
@@ -275,6 +286,7 @@ export class Game {
           if (colX && colY) {
             bomb.isSpiritBombCollided = true;
             monster.lives -= 1;
+            sounds.impactMonster.play();
           }
         });
         if (monster.lives === 0) {
@@ -283,6 +295,7 @@ export class Game {
           this.monstersKilled += 1;
           monster.isMonsterKilled = true;
           monster.setState = "dead";
+
           setTimeout(() => {
             this.monsters = this.monsters.filter((monster) => !monster.isMonsterKilled);
           }, 800);
@@ -306,6 +319,8 @@ export class Game {
           if (colX && colY) {
             bat.cageBack.hard -= 1;
             bomb.isSpiritBombCollided = true;
+
+            if (bat.cageBack.hard >= 1) sounds.collisionCage.play();
 
             if (bat.cageBack.hard === 0) {
               bat.isBatFreed = true;
@@ -338,7 +353,9 @@ export class Game {
           if (colXmonster && colYmonster) {
             if (this.player.lives > 0) {
               monster.setState = "attack";
+
               this.player.takedHit = true;
+
               if (!this.player.isTaked) {
                 this.player.position.xPosition -= 200;
                 this.player.lives -= 1;
@@ -409,6 +426,14 @@ export class Game {
 
       this.display.ghostWon();
 
+      sounds.finalBats.stop();
+      sounds.backgoundSoundBattle.stop();
+
+      if (!this.stop) {
+        sounds.backgoundSoundWin.play();
+        this.stop = true;
+      }
+
       this.setLocalStorage();
     }
   }
@@ -450,6 +475,10 @@ export class Game {
 
     if (this.player.isDead) {
       this.display.ghostIsDead();
+    }
+
+    if (this.boss.isBossAppear && !this.boss.isAttacking && !this.player.isDead) {
+      this.display.bossAppears();
     }
   }
 
@@ -499,7 +528,7 @@ export class Game {
               this.bgSpeedControlled = 0;
               break;
             case "Control":
-              if (!this.player.isDead && !this.player.isWinner) this.player.playerAttack();
+              if (!this.player.isDead && !this.player.isWinner && !this.pause) this.player.playerAttack();
           }
           break;
       }

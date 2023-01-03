@@ -35,6 +35,12 @@ export const DISPLAYDB = {
     frameBuffer: 1,
     scale: 1,
   },
+  BossAppears: {
+    image: "../../src/img/displayInfo/boss_appears.png",
+    totalFrames: 1,
+    frameBuffer: 1,
+    scale: 1,
+  },
   GamePaused: {
     image: "../../src/img/displayInfo/game_paused.png",
     totalFrames: 1,

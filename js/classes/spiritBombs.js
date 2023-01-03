@@ -1,10 +1,12 @@
 import { CANVAS_WIDTH } from "../utils/constants.js";
+import { sounds } from "../utils/sounds.js";
 import { Sprite } from "./sprite.js";
 
 export class SpiritBombs extends Sprite {
-  constructor(DataBase, xPositionPlayer, yPositionPlayer, direction) {
+  constructor(DataBase, xPositionPlayer, yPositionPlayer, direction, type) {
     super();
     this.direction = direction;
+    this.type = type;
     this.position = { xPosition: this.direction ? xPositionPlayer : xPositionPlayer - 40, yPosition: yPositionPlayer };
     this.xVelocity = 10;
 
@@ -17,9 +19,18 @@ export class SpiritBombs extends Sprite {
     this.loop = true;
 
     this.isSpiritBombCollided = false;
+    this.stopSound = false;
   }
 
   move() {
+    if (!this.stopSound) {
+      if (this.type === "bomb") sounds.spiritBomb.play();
+
+      if (this.type === "bone") sounds.bones.play();
+
+      this.stopSound = true;
+    }
+
     if (this.direction) {
       this.position.xPosition += this.xVelocity;
       if (this.position.xPosition > CANVAS_WIDTH + this.widthImg) this.isSpiritBombCollided = true;
