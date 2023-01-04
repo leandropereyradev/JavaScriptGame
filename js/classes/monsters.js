@@ -1,4 +1,4 @@
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../utils/constants.js";
+import { CANVAS_WIDTH, CANVAS_HEIGHT, CTX } from "../utils/constants.js";
 import { MONSTERDB } from "../utils/monsterDB.js";
 import { sounds } from "../utils/sounds.js";
 import { Sprite } from "./sprite.js";
@@ -25,13 +25,21 @@ export class Monsters extends Sprite {
     this.setState = "";
 
     this.speed = Math.floor(Math.random() * 3) + 1;
-    this.lives = Math.floor(Math.random() * 5) + 3;
+    this.lives = 100;
 
     this.switchSprite("Walk");
 
     this.stopIdleSound = false;
     this.stopDeadSound = false;
     this.stopAttackSound = false;
+  }
+
+  healthBar() {
+    CTX.fillStyle = "#701400";
+    CTX.fillRect(this.position.xPosition + 50, this.position.yPosition - 15, 80, 10);
+
+    CTX.fillStyle = "#0C7000";
+    CTX.fillRect(this.position.xPosition + 50, this.position.yPosition - 15, (80 * (this.lives < 0 ? 0 : this.lives)) / 100, 10);
   }
 
   movement() {

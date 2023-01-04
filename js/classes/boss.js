@@ -1,4 +1,4 @@
-import { CANVAS_WIDTH } from "../utils/constants.js";
+import { CANVAS_WIDTH, CTX } from "../utils/constants.js";
 import { BOSSDB } from "../utils/bossDB.js";
 import { Sprite } from "./sprite.js";
 import { sounds } from "../utils/sounds.js";
@@ -25,7 +25,7 @@ export class Boss extends Sprite {
     this.isBossDead = false;
 
     this.speed = 1;
-    this.lives = 50;
+    this.lives = 1000;
 
     this.bossSoundIdle = false;
     this.bossSoundAttack = false;
@@ -35,8 +35,22 @@ export class Boss extends Sprite {
 
   bossAnimations() {
     this.draw();
+    this.healthBar();
     this.movement();
     this.statesMonster();
+  }
+
+  healthBar() {
+    CTX.fillStyle = "#701400";
+    CTX.fillRect(this.position.xPosition + this.xLocation + 60, this.position.yPosition + this.yLocation - 40, 80, 10);
+
+    CTX.fillStyle = "#0C7000";
+    CTX.fillRect(
+      this.position.xPosition + this.xLocation + 60,
+      this.position.yPosition + this.yLocation - 40,
+      (80 * (this.lives < 0 ? 0 : this.lives)) / 1000,
+      10
+    );
   }
 
   movement() {

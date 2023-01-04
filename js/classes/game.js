@@ -22,6 +22,7 @@ export class Game {
 
     this.batFreed = 0;
     this.monstersKilled = 0;
+    this.scorePoints = 0;
     this.liveAccumulator = 0;
     this.namePlayer = "";
 
@@ -113,6 +114,7 @@ export class Game {
 
       this.monsters.forEach((monster) => {
         monster.draw();
+        monster.healthBar();
         monster.movement();
       });
 
@@ -190,7 +192,7 @@ export class Game {
   }
 
   bossAppear() {
-    if (this.batFreed >= 20 || this.monstersKilled >= 30) {
+    if (this.batFreed >= 10 || this.monstersKilled >= 30) {
       this.isFinal = true;
 
       if (!this.monsters.length && !this.bats.length) {
@@ -248,7 +250,8 @@ export class Game {
 
       if (colX && colY) {
         if (this.boss.lives > 0) bomb.isSpiritBombCollided = true;
-        this.boss.lives -= 1;
+        this.boss.lives -= Math.floor(Math.random() * 10 + 5);
+        this.scorePoints += Math.floor(Math.random() * 100 + 40);
         sounds.bossHit.play();
         if (this.boss.position.xPosition + this.boss.xLocation > this.player.position.xPosition) {
           this.boss.setState = "walk";
@@ -258,7 +261,8 @@ export class Game {
           this.boss.speed = -1.5;
         }
       }
-      if (this.boss.lives === 0) {
+      if (this.boss.lives <= 0) {
+        this.scorePoints += 1000;
         this.finalCage.isBatFreed = true;
         this.finalBats.forEach((bat) => {
           bat.batSpeed = Math.floor(Math.random() * 5 + 4);
@@ -285,14 +289,15 @@ export class Game {
 
           if (colX && colY) {
             bomb.isSpiritBombCollided = true;
-            monster.lives -= 1;
+            monster.lives -= Math.floor(Math.random() * 30 + 10);
             sounds.impactMonster.play();
           }
         });
-        if (monster.lives === 0) {
+        if (monster.lives <= 0) {
           monster.speed = 0;
           monster.isNotAttacking = true;
           this.monstersKilled += 1;
+          this.scorePoints += Math.floor(Math.random() * 50 + 30);
           monster.isMonsterKilled = true;
           monster.setState = "dead";
 
@@ -326,6 +331,7 @@ export class Game {
               bat.isBatFreed = true;
               bat.batSpeed = 2;
               this.batFreed += 1;
+              this.scorePoints += Math.floor(Math.random() * 100 + 40);
 
               if (this.player.lives < 10) this.liveAccumulator += 1;
 
@@ -359,6 +365,7 @@ export class Game {
               if (!this.player.isTaked) {
                 this.player.position.xPosition -= 200;
                 this.player.lives -= 1;
+                this.scorePoints -= Math.floor(Math.random() * 100 + 40)
                 this.player.isTaked = true;
               }
 
@@ -382,6 +389,7 @@ export class Game {
             this.player.takedHit = true;
             if (!this.player.isTaked) {
               this.player.lives -= 1;
+              this.scorePoints -= Math.floor(Math.random() * 100 + 40)
               this.player.isTaked = true;
             }
 
@@ -418,6 +426,7 @@ export class Game {
   }
 
   gameOver() {
+    //TODO add this.scorePoints
     this.player.isWinner = true;
     if (this.boss.isBossDead) {
       this.display.bats_Freed = this.batFreed;
@@ -439,6 +448,7 @@ export class Game {
   }
 
   setLocalStorage() {
+    //TODO add this.scorePoints
     if (!this.storage) {
       this.score.push({
         name: this.namePlayer,
@@ -468,6 +478,7 @@ export class Game {
   }
 
   displayStatus() {
+    //TODO add this.scorePoints
     this.display.bats_Freed = this.batFreed;
     this.display.monsters_Killed = this.monstersKilled;
     this.display.name = this.namePlayer;
