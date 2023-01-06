@@ -1,19 +1,10 @@
 import { Game } from "./classes/game.js";
 import { sounds } from "./utils/sounds.js";
 
-// let context;
-// window.onload = function () {
-//   context = new AudioContext();
-// };
-
 const game = new Game();
 let gameStarted = false;
 
 document.querySelector("#start-button").onclick = () => {
-  // context.resume().then(() => {
-  //   console.log("Playback resumed successfully");
-  // });
-
   const name = prompt("Please enter your name");
   const nameFixed = name.charAt(0).toUpperCase() + name.toLowerCase().slice(1);
 
@@ -47,14 +38,19 @@ const scoreStoraged = JSON.parse(localStorage.getItem("score"));
 
 let number = 0;
 
-scoreStoraged.forEach((store) => {
-  const newDiv = document.createElement("div");
-  newDiv.className = "table-storage";
-  newDiv.innerHTML = `
+scoreStoraged
+  .sort((a, b) => b.score - a.score)
+  .forEach((store) => {
+    const newDiv = document.createElement("div");
+
+    newDiv.className = "table-storage";
+
+    newDiv.innerHTML = `
     <div><p>${(number += 1)}</p></div>
     <div><p>${store.name}</p></div>
     <div><p>${store.bats}</p></div>
-    <div><p>${store.zombies}</p></div>`;
+    <div><p>${store.zombies}</p></div>
+    <div><p>${store.score}</p></div>`;
 
-  scoreElement.appendChild(newDiv);
-});
+    scoreElement.appendChild(newDiv);
+  });

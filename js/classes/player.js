@@ -41,13 +41,11 @@ export class Player extends Sprite {
       bomb.move();
     });
 
-    this.hearts.draw(this.lives);
+    if (!this.isWinner) this.hearts.draw(this.lives);
+
     this.dead();
-    if (this.right) {
-      this.states = PLAYERDBR;
-    } else {
-      this.states = PLAYERDBL;
-    }
+
+    this.right ? (this.states = PLAYERDBR) : (this.states = PLAYERDBL);
   }
 
   playerAttack() {
@@ -111,24 +109,17 @@ export class Player extends Sprite {
     if (!this.onFloor()) {
       this.switchSprite("Run");
       this.yVertical += this.gravity;
-      if (this.key === "Control" && !this.isWinner) {
-        this.switchSprite("Attack");
-      }
+
+      if (this.key === "Control" && !this.isWinner) this.switchSprite("Attack");
     } else {
       this.yVertical = 0;
     }
 
-    if (this.position.yPosition >= CANVAS_HEIGHT - this.heightImg - 50) {
-      this.position.yPosition = CANVAS_HEIGHT - this.heightImg - 50;
-    }
+    if (this.position.yPosition >= CANVAS_HEIGHT - this.heightImg - 50) this.position.yPosition = CANVAS_HEIGHT - this.heightImg - 50;
 
-    if (this.position.xPosition <= 0) {
-      this.position.xPosition = 0;
-    }
+    if (this.position.xPosition <= 0) this.position.xPosition = 0;
 
-    if (this.position.xPosition >= CANVAS_WIDTH - this.widthImg) {
-      this.position.xPosition = CANVAS_WIDTH - this.widthImg;
-    }
+    if (this.position.xPosition >= CANVAS_WIDTH - this.widthImg) this.position.xPosition = CANVAS_WIDTH - this.widthImg;
   }
 
   onFloor() {

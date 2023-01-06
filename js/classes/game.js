@@ -39,54 +39,18 @@ export class Game {
     this.boss = new Boss();
 
     this.isFinal = false;
+
     this.finalCage = new Bats({ x: CANVAS_WIDTH - 10, y: CANVAS_HEIGHT - 250 }, "BlueBat");
+
     this.finalBats = [];
+
     for (let i = 0; i < 100; i++) {
       let xPos = Math.floor(Math.random() * 150) + CANVAS_WIDTH - 20;
       let yPos = Math.floor(Math.random() * 310) + 140;
       this.finalBats.push(new Bats({ x: xPos, y: yPos }, selectBats()));
     }
 
-    //Background
-    this.imgBackground = new Image();
-    this.imgBackground.src = "../../src/img/background/sky.png";
-    this.sizeBg = 1865;
-    this.sizeMoon = 300;
-    this.bgSpeed = 1;
-    this.bgSpeedControlled = 1;
-
-    this.imgSrc1 = "../../src/img/background/moon.png";
-    this.moon = new Background(CANVAS_WIDTH, 0, this.imgSrc1, this.bgSpeed * 0.07, null, this.sizeMoon, false);
-
-    this.imgSrc2 = "../../src/img/background/background3.png";
-    this.bg1 = new Background(0, 30, this.imgSrc2, this.bgSpeedControlled * 0.1, this.sizeBg, this.sizeBg, true, false, true);
-
-    this.imgSrc3 = "../../src/img/background/background2.png";
-    this.bg2 = new Background(0, 40, this.imgSrc3, this.bgSpeedControlled * 0.3, this.sizeBg, this.sizeBg, true, false, true);
-
-    this.imgSrc4 = "../../src/img/background/clouds.png";
-    this.clouds = new Background(0, 60, this.imgSrc4, this.bgSpeed * 0.8, this.sizeBg, this.sizeBg, true);
-
-    this.imgSrc4b = "../../src/img/background/clouds.png";
-    this.clouds2 = new Background(400, 250, this.imgSrc4b, this.bgSpeed * 0.4, this.sizeBg, this.sizeBg, true, true);
-
-    this.imgSrc5 = "../../src/img/background/background1.png";
-    this.bg3 = new Background(0, 56, this.imgSrc5, this.bgSpeedControlled * 0.5, this.sizeBg, this.sizeBg, true, false, true);
-
-    this.imgSrc6 = "../../src/img/background/floor.png";
-    this.floor = new Background(
-      0,
-      CANVAS_HEIGHT - 100,
-      this.imgSrc6,
-      this.bgSpeedControlled * 1,
-      this.sizeBg,
-      this.sizeBg,
-      true,
-      false,
-      true
-    );
-
-    this.decorations = [this.moon, this.bg1, this.clouds, this.bg2, this.clouds2, this.bg3, this.floor];
+    this.decorations = new Background();
   }
 
   start() {
@@ -96,11 +60,7 @@ export class Game {
     this.interval = setInterval(() => {
       this.clear();
 
-      CTX.drawImage(this.imgBackground, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-      this.decorations.forEach((decoration) => {
-        decoration.draw();
-        decoration.animate();
-      });
+      this.decorations.draw();
 
       this.batsAppears();
       this.monstersAppears();
@@ -151,7 +111,8 @@ export class Game {
 
       this.player.charAnimations();
 
-      this.displayStatus();
+      if (!this.player.isWinner) this.displayStatus();
+
       if (this.boss.isBossDead && this.boss.position.xPosition > CANVAS_WIDTH) this.gameOver();
     }, 1000 / 60);
   }
@@ -162,9 +123,7 @@ export class Game {
     if (this.tickMonster <= 0 && !this.boss.isBossDead) {
       this.tickMonster = Math.floor(Math.random() * 400) + 100;
 
-      if (!this.isFinal) {
-        this.monsters.push(new Monsters());
-      }
+      if (!this.isFinal) this.monsters.push(new Monsters());
     }
   }
 
@@ -192,15 +151,15 @@ export class Game {
   }
 
   bossAppear() {
-    if (this.batFreed >= 10 || this.monstersKilled >= 30) {
+    if (this.batFreed >= 2 || this.monstersKilled >= 30) {
       this.isFinal = true;
 
       if (!this.monsters.length && !this.bats.length) {
         this.boss.isBossAppear = true;
 
         setTimeout(() => {
-          this.decorations.forEach((bg) => {
-            if (bg.controled) bg.backgroundSpeed = 0;
+          this.decorations.backGrounds.forEach((bg) => {
+            if (bg.controled) bg.speed = 0;
           });
         }, 3500);
       }
@@ -294,7 +253,7 @@ export class Game {
           }
         });
         if (monster.lives <= 0) {
-          monster.speed = 0;
+          monster.speed = 1;
           monster.isNotAttacking = true;
           this.monstersKilled += 1;
           this.scorePoints += Math.floor(Math.random() * 50 + 30);
@@ -365,7 +324,7 @@ export class Game {
               if (!this.player.isTaked) {
                 this.player.position.xPosition -= 200;
                 this.player.lives -= 1;
-                this.scorePoints -= Math.floor(Math.random() * 100 + 40)
+                this.scorePoints -= Math.floor(Math.random() * 100 + 40);
                 this.player.isTaked = true;
               }
 
@@ -389,7 +348,7 @@ export class Game {
             this.player.takedHit = true;
             if (!this.player.isTaked) {
               this.player.lives -= 1;
-              this.scorePoints -= Math.floor(Math.random() * 100 + 40)
+              this.scorePoints -= Math.floor(Math.random() * 100 + 40);
               this.player.isTaked = true;
             }
 
@@ -426,12 +385,12 @@ export class Game {
   }
 
   gameOver() {
-    //TODO add this.scorePoints
     this.player.isWinner = true;
     if (this.boss.isBossDead) {
       this.display.bats_Freed = this.batFreed;
       this.display.monsters_Killed = this.monstersKilled;
       this.display.name = this.namePlayer;
+      this.display.score = this.scorePoints;
 
       this.display.ghostWon();
 
@@ -448,10 +407,10 @@ export class Game {
   }
 
   setLocalStorage() {
-    //TODO add this.scorePoints
     if (!this.storage) {
       this.score.push({
         name: this.namePlayer,
+        score: this.scorePoints,
         bats: this.batFreed,
         zombies: this.monstersKilled,
       });
@@ -463,6 +422,7 @@ export class Game {
           ...this.score,
           {
             name: this.namePlayer,
+            score: this.scorePoints,
             bats: this.batFreed,
             zombies: this.monstersKilled,
           },
@@ -478,19 +438,15 @@ export class Game {
   }
 
   displayStatus() {
-    //TODO add this.scorePoints
     this.display.bats_Freed = this.batFreed;
     this.display.monsters_Killed = this.monstersKilled;
     this.display.name = this.namePlayer;
+    this.display.score = this.scorePoints;
     this.display.displaying();
 
-    if (this.player.isDead) {
-      this.display.ghostIsDead();
-    }
+    if (this.player.isDead) this.display.ghostIsDead();
 
-    if (this.boss.isBossAppear && !this.boss.isAttacking && !this.player.isDead) {
-      this.display.bossAppears();
-    }
+    if (this.boss.isBossAppear && !this.boss.isAttacking && !this.player.isDead) this.display.bossAppears();
   }
 
   onKeyEvent(event) {

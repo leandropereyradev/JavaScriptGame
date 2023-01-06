@@ -1,51 +1,49 @@
-import { CANVAS_WIDTH, CTX } from "../utils/constants.js";
+import { BGROUNDDB } from "../utils/bgroundDB.js";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CTX } from "../utils/constants.js";
 
 export class Background {
-  constructor(x, y, imgSrc, backgroundSpeed, x2, width, infinity, right = false, controled = false) {
-    this.x = x;
-    this.x2 = x2;
-    this.y = y;
-    this.width = width;
-
-    this.image = new Image();
-    this.image.src = imgSrc;
-    this.image2 = this.image;
-
-    this.backgroundSpeed = backgroundSpeed;
-    this.infinity = infinity;
-    this.right = right;
-    this.controled = controled;
+  constructor() {
+    this.states = BGROUNDDB;
+    this.backGrounds = BGROUNDDB;
+    this.imageFix = new Image();
+    this.imageFix.src = "../../src/img/background/sky.png";
   }
   draw() {
-    CTX.drawImage(this.image, this.x, this.y);
+    CTX.drawImage(this.imageFix, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    if (this.infinity) {
-      CTX.drawImage(this.image2, this.x2, this.y);
-    }
+    this.backGrounds.forEach((state) => {
+      state.image.src = state.src;
+
+      let image2 = state.image;
+
+      CTX.drawImage(state.image, state.xPosition, state.yPosition);
+
+      if (state.infinity) CTX.drawImage(image2, state.xPosition2, state.yPosition);
+    });
+    this.animate();
   }
 
   animate() {
-    if (this.right) {
-      this.x += this.backgroundSpeed;
+    this.backGrounds.forEach((state) => {
+      if (state.right) {
+        state.xPosition += state.speed;
 
-      if (this.infinity) {
-        this.x2 += this.backgroundSpeed;
+        state.xPosition2 += state.speed;
 
-        if (this.x >= this.width) this.x = -this.width + this.x2 - this.backgroundSpeed;
+        if (state.xPosition >= state.width) state.xPosition = -state.width + state.xPosition2 - state.speed;
 
-        if (this.x2 >= this.width) this.x2 = -this.width + this.x - this.backgroundSpeed;
+        if (state.xPosition2 >= state.width) state.xPosition2 = -state.width + state.xPosition - state.speed;
+      } else {
+        state.xPosition -= state.speed;
+        if (state.xPosition <= -state.width) state.xPosition = state.width + state.xPosition2 - state.speed;
+
+        if (state.infinity) {
+          state.xPosition2 -= state.speed;
+
+          if (state.xPosition2 <= -state.width) state.xPosition2 = state.width + state.xPosition - state.speed;
+        }
+        if (!state.infinity && state.xPosition <= -state.width) state.xPosition = CANVAS_WIDTH;
       }
-    } else {
-      this.x -= this.backgroundSpeed;
-
-      if (this.infinity) {
-        this.x2 -= this.backgroundSpeed;
-
-        if (this.x <= -this.width) this.x = this.width + this.x2 - this.backgroundSpeed;
-
-        if (this.x2 <= -this.width) this.x2 = this.width + this.x - this.backgroundSpeed;
-      }
-      if (!this.infinity && this.x <= -this.width) this.x = CANVAS_WIDTH;
-    }
+    });
   }
 }

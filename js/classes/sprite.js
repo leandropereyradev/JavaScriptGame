@@ -25,6 +25,7 @@ export class Sprite {
 
   draw() {
     if (!this.image) return;
+
     const cropBox = {
       position: {
         x: this.currentFrame * this.widthImg,
@@ -33,6 +34,7 @@ export class Sprite {
       width: this.widthImg,
       height: this.image.height,
     };
+
     CTX.drawImage(
       this.image,
       cropBox.position.x,
@@ -50,6 +52,7 @@ export class Sprite {
 
   animateFrames() {
     this.elapsedFrames <= 200 ? this.elapsedFrames++ : (this.elapsedFrames = 0);
+
     if (this.elapsedFrames % this.frameBuffer === 0) {
       if (this.currentFrame < this.totalFrames - 1) this.currentFrame++;
       else if (this.loop) this.currentFrame = 0;
@@ -58,6 +61,7 @@ export class Sprite {
 
   switchSprite(name) {
     if (this.image.src === this.states[name].image) return;
+
     this.image.src = this.states[name].image;
     this.scale = this.states[name].scale ? this.states[name].scale : 1;
     this.totalFrames = this.states[name].totalFrames ? this.states[name].totalFrames : 1;

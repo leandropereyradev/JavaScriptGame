@@ -44,9 +44,8 @@ export class Monsters extends Sprite {
 
   movement() {
     this.statesMonster();
-    if (this.position.xPosition <= -this.widthImg) {
-      this.isMonsterOut = true;
-    }
+
+    if (this.position.xPosition <= -this.widthImg) this.isMonsterOut = true;
 
     if (!this.stopIdleSound) {
       sounds.monsterAppears.play();
