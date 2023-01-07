@@ -151,7 +151,7 @@ export class Game {
   }
 
   bossAppear() {
-    if (this.batFreed >= 2 || this.monstersKilled >= 30) {
+    if (this.batFreed >= 20 || this.monstersKilled >= 30) {
       this.isFinal = true;
 
       if (!this.monsters.length && !this.bats.length) {
