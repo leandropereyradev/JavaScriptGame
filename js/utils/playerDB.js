@@ -2,7 +2,6 @@ const PLAYERDBR = {
   Idle: {
     image: "../../src/img/player/player_idle_right.png",
     totalFrames: 6,
-    resetFrames: 6,
     frameBuffer: 9,
     scale: 1.2,
   },
@@ -49,7 +48,6 @@ const PLAYERDBL = {
   Idle: {
     image: "../../src/img/player/player_idle_left.png",
     totalFrames: 6,
-    resetFrames: 6,
     frameBuffer: 9,
     scale: 1.2,
   },

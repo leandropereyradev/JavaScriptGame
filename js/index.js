@@ -1,56 +1,49 @@
 import { Game } from "./classes/game.js";
 import { sounds } from "./utils/sounds.js";
 
-const game = new Game();
-let gameStarted = false;
+window.onload = () => {
+  const game = new Game();
 
-document.querySelector("#start-button").onclick = () => {
-  const name = prompt("Please enter your name");
-  const nameFixed = name.charAt(0).toUpperCase() + name.toLowerCase().slice(1);
+  document.querySelector("#start-button").onclick = () => {
+    const name = prompt("Please enter your name");
+    const nameFixed = name.charAt(0).toUpperCase() + name.toLowerCase().slice(1);
 
-  if (nameFixed != "") {
-    game.namePlayer = nameFixed;
-  } else {
-    game.namePlayer = "Stranger";
-  }
+    if (nameFixed != "") {
+      game.namePlayer = nameFixed;
+    } else {
+      game.namePlayer = "Stranger";
+    }
 
-  document.querySelector(".info-container").style.display = "none";
-  document.querySelector(".canvas-container").style.display = "Flex";
-  document.querySelector(".footer").style.position = "absolute";
+    document.querySelector(".info-container").style.display = "none";
+    document.querySelector(".canvas-container").style.display = "Flex";
+    document.querySelector(".footer").style.position = "absolute";
 
-  gameStarted = true;
+    sounds.backgoundSound.play();
+    game.pauseGame();
+  };
 
-  sounds.backgoundSound.play();
-  game.pauseGame();
-};
+  const scoreElement = document.getElementById("score");
 
-document.addEventListener("keydown", (e) => {
-  if (gameStarted) game.onKeyEvent(e);
-});
+  const scoreStoraged = JSON.parse(localStorage.getItem("score"));
 
-document.addEventListener("keyup", (e) => {
-  if (gameStarted) game.onKeyEvent(e);
-});
+  let number = 0;
 
-const scoreElement = document.getElementById("score");
+  if (scoreStoraged !== null) {
+    scoreStoraged
+      .sort((a, b) => b.score - a.score)
+      .forEach((store) => {
+        const newDiv = document.createElement("div");
 
-const scoreStoraged = JSON.parse(localStorage.getItem("score"));
+        newDiv.className = "table-storage";
 
-let number = 0;
-
-scoreStoraged
-  .sort((a, b) => b.score - a.score)
-  .forEach((store) => {
-    const newDiv = document.createElement("div");
-
-    newDiv.className = "table-storage";
-
-    newDiv.innerHTML = `
+        newDiv.innerHTML = `
     <div><p>${(number += 1)}</p></div>
     <div><p>${store.name}</p></div>
     <div><p>${store.bats}</p></div>
     <div><p>${store.zombies}</p></div>
     <div><p>${store.score}</p></div>`;
 
-    scoreElement.appendChild(newDiv);
-  });
+        scoreElement.appendChild(newDiv);
+      });
+  }
+};

@@ -15,12 +15,9 @@ export class Sprite {
 
     this.image = new Image();
     this.image.onload = () => {
-      this.loaded = true;
       this.widthImg = this.image.width / this.totalFrames;
       this.heightImg = this.image.height;
     };
-
-    this.loaded = false;
   }
 
   draw() {

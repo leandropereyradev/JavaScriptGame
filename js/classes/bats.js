@@ -1,19 +1,20 @@
 import { BATSDB } from "../utils/batsDB.js";
-import { CANVAS_WIDTH } from "../utils/constants.js";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, selectBats } from "../utils/constants.js";
 import { sounds } from "../utils/sounds.js";
 import { Cages } from "./cages.js";
 import { Sprite } from "./sprite.js";
 
 export class Bats extends Sprite {
-  constructor(positionBats, type) {
+  constructor(game, xFinalPosition, yFinalPosition) {
     super();
+    this.game = game;
     this.position = {
-      xPosition: positionBats.x,
-      yPosition: positionBats.y,
+      xPosition: !xFinalPosition ? CANVAS_WIDTH - 10 : xFinalPosition,
+      yPosition: !yFinalPosition ? CANVAS_HEIGHT - 250 : yFinalPosition,
     };
 
     this.states = BATSDB;
-    this.switchSprite(type);
+    this.switchSprite(selectBats());
 
     this.isBatFreed = false;
     this.isBatOut = false;
@@ -26,7 +27,6 @@ export class Bats extends Sprite {
     this.wood = new Cages("WoodChain");
     this.wood.switchSprite("WoodChain");
 
-    this.stopBatFinal = 10;
     this.finalBack = new Cages();
     this.finalBack.switchSprite("FinalBack");
     this.finalBack.hard = 10;
@@ -41,6 +41,8 @@ export class Bats extends Sprite {
     this.stopSoundBats = false;
     this.stopSoundBatsFreed = false;
     this.stopSoundCage = false;
+
+    this.tickBat = 60;
   }
 
   drawBats() {
@@ -51,6 +53,19 @@ export class Bats extends Sprite {
     this.cageDoorClosed.switchSprite(this.isBatFreed ? "DoorOpened" : "DoorClosed");
 
     this.cageDoorClosed.draw();
+  }
+
+  batsAppears() {
+    this.tickBat--;
+
+    if (this.tickBat <= 0) {
+      this.tickBat = Math.floor(Math.random() * 500) + 300;
+
+      if (!this.game.isFinal) {
+        const bat = new Bats();
+        this.game.bats.push(bat);
+      }
+    }
   }
 
   movement() {

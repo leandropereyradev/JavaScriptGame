@@ -2,12 +2,11 @@ import { Player } from "./player.js";
 import { Background } from "./background.js";
 import { Monsters } from "./monsters.js";
 import { Bats } from "./bats.js";
-import { CANVAS_WIDTH, CANVAS_HEIGHT, CTX, selectBats } from "../utils/constants.js";
+import { CANVAS_WIDTH, CANVAS_HEIGHT, CTX } from "../utils/constants.js";
 import { Boss } from "./boss.js";
-import { MONSTERDB } from "../utils/monsterDB.js";
-import { SpiritBombs } from "./spiritBombs.js";
 import { DisplayInfo } from "./displayInfo.js";
 import { sounds } from "../utils/sounds.js";
+import { KeyHandler } from "./keyHandler.js";
 
 export class Game {
   constructor() {
@@ -19,6 +18,7 @@ export class Game {
     this.storage = false;
     this.score = [];
     this.stop = false;
+    this.isFinal = false;
 
     this.batFreed = 0;
     this.monstersKilled = 0;
@@ -26,31 +26,31 @@ export class Game {
     this.liveAccumulator = 0;
     this.namePlayer = "";
 
-    this.player = new Player();
+    this.decorations = new Background();
+
+    this.player = new Player(this);
 
     this.display = new DisplayInfo();
 
-    this.tickBat = 60;
-    this.tickMonster = Math.floor(Math.random() * 500) + 100;
+    this.input = new KeyHandler(this);
+    this.keys = [];
+
+    this.bat = new Bats(this);
+    this.monster = new Monsters(this);
+    this.bone = new Monsters(this);
+    this.boss = new Boss(this);
+    this.finalCage = new Bats(this);
 
     this.bats = [];
     this.monsters = [];
     this.bones = [];
-    this.boss = new Boss();
-
-    this.isFinal = false;
-
-    this.finalCage = new Bats({ x: CANVAS_WIDTH - 10, y: CANVAS_HEIGHT - 250 }, "BlueBat");
-
     this.finalBats = [];
 
     for (let i = 0; i < 100; i++) {
-      let xPos = Math.floor(Math.random() * 150) + CANVAS_WIDTH - 20;
-      let yPos = Math.floor(Math.random() * 310) + 140;
-      this.finalBats.push(new Bats({ x: xPos, y: yPos }, selectBats()));
+      let x = Math.floor(Math.random() * 150) + CANVAS_WIDTH - 20;
+      let y = Math.floor(Math.random() * 310) + 140;
+      this.finalBats.push(new Bats(this, x, y));
     }
-
-    this.decorations = new Background();
   }
 
   start() {
@@ -62,10 +62,8 @@ export class Game {
 
       this.decorations.draw();
 
-      this.batsAppears();
-      this.monstersAppears();
-      this.bonesAppears();
-      this.bossAppear();
+      this.bat.batsAppears();
+      this.monster.monstersAppears();
 
       this.bats.forEach((bat) => {
         bat.drawBats();
@@ -99,7 +97,7 @@ export class Game {
         this.finalCage.final();
 
         this.boss.draw();
-        this.boss.bossAnimations();
+
         this.checkBombAndBOSS();
       }
 
@@ -109,6 +107,9 @@ export class Game {
         bone.move();
       });
 
+      this.boss.bossAppear();
+      this.bone.bonesAppears();
+
       this.player.charAnimations();
 
       if (!this.player.isWinner) this.displayStatus();
@@ -117,60 +118,11 @@ export class Game {
     }, 1000 / 60);
   }
 
-  monstersAppears() {
-    this.tickMonster--;
-
-    if (this.tickMonster <= 0 && !this.boss.isBossDead) {
-      this.tickMonster = Math.floor(Math.random() * 400) + 100;
-
-      if (!this.isFinal) this.monsters.push(new Monsters());
-    }
-  }
-
-  bonesAppears() {
-    this.tickMonster--;
-
-    if (this.tickMonster <= 0 && !this.boss.isBossDead) {
-      this.tickMonster = Math.floor(Math.random() * 400) + 100;
-
-      this.bones.push(new SpiritBombs(MONSTERDB, CANVAS_WIDTH, 450, false, "bone"));
-    }
-  }
-
-  batsAppears() {
-    this.tickBat--;
-
-    if (this.tickBat <= 0) {
-      this.tickBat = Math.floor(Math.random() * 500) + 300;
-
-      if (!this.isFinal) {
-        const bat = new Bats({ x: CANVAS_WIDTH - 10, y: CANVAS_HEIGHT - 250 }, selectBats());
-        this.bats.push(bat);
-      }
-    }
-  }
-
-  bossAppear() {
-    if (this.batFreed >= 20 || this.monstersKilled >= 30) {
-      this.isFinal = true;
-
-      if (!this.monsters.length && !this.bats.length) {
-        this.boss.isBossAppear = true;
-
-        setTimeout(() => {
-          this.decorations.backGrounds.forEach((bg) => {
-            if (bg.controled) bg.speed = 0;
-          });
-        }, 3500);
-      }
-    }
-  }
-
   finalBatle() {
     const dx = this.boss.position.xPosition + this.boss.xLocation - this.player.position.xPosition;
     const dy = this.boss.position.yPosition + this.boss.yLocation - this.player.position.yPosition;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    if (distance < 150 && !this.player.isDead && !this.player.isDone) {
+    if (distance < 150 && !this.player.isDead && !this.player.isDone && !this.boss.isBossDead) {
       if (this.boss.position.xPosition + this.boss.xLocation > this.player.position.xPosition) {
         this.boss.setState = "attack";
       } else {
@@ -209,7 +161,7 @@ export class Game {
 
       if (colX && colY) {
         if (this.boss.lives > 0) bomb.isSpiritBombCollided = true;
-        this.boss.lives -= Math.floor(Math.random() * 10 + 5);
+        this.boss.lives -= Math.floor(Math.random() * 20 + 10);
         this.scorePoints += Math.floor(Math.random() * 100 + 40);
         sounds.bossHit.play();
         if (this.boss.position.xPosition + this.boss.xLocation > this.player.position.xPosition) {
@@ -229,7 +181,6 @@ export class Game {
         });
 
         this.boss.isBossDead = true;
-        this.boss.setState = "walkRight";
         this.boss.speed = -2;
       }
     });
@@ -446,59 +397,6 @@ export class Game {
 
     if (this.player.isDead) this.display.ghostIsDead();
 
-    if (this.boss.isBossAppear && !this.boss.isAttacking && !this.player.isDead) this.display.bossAppears();
-  }
-
-  onKeyEvent(event) {
-    if (event) {
-      switch (event.type) {
-        case "keydown":
-          switch (event.key) {
-            case "ArrowLeft":
-              this.player.key = event.key;
-              break;
-            case "ArrowRight":
-              this.player.key = event.key;
-              break;
-            case "Control":
-              this.player.key = event.key;
-              break;
-            case "r":
-              if (this.player.isDead) this.player.key = event.key;
-              break;
-            case " ":
-              this.player.key = event.key;
-              break;
-            case "p":
-              if (!this.pause) this.pauseGame();
-              break;
-            case "c":
-              if (this.pause) {
-                this.start();
-                this.pause = false;
-              }
-              break;
-            case "s":
-              location.reload();
-              break;
-          }
-          break;
-        case "keyup":
-          switch (event.key) {
-            case " ":
-            case "p":
-            case "c":
-            case "s":
-            case "ArrowLeft":
-            case "ArrowRight":
-              this.player.key = "";
-              this.bgSpeedControlled = 0;
-              break;
-            case "Control":
-              if (!this.player.isDead && !this.player.isWinner && !this.pause) this.player.playerAttack();
-          }
-          break;
-      }
-    }
+    if (!this.boss.isBossAppear && this.isFinal) this.display.bossAppears();
   }
 }

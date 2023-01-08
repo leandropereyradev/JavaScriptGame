@@ -1,15 +1,18 @@
 import { CANVAS_WIDTH, CANVAS_HEIGHT, CTX } from "../utils/constants.js";
 import { MONSTERDB } from "../utils/monsterDB.js";
 import { sounds } from "../utils/sounds.js";
+import { SpiritBombs } from "./spiritBombs.js";
 import { Sprite } from "./sprite.js";
 
 export class Monsters extends Sprite {
-  constructor() {
+  constructor(game) {
     super();
     this.position = {
       xPosition: CANVAS_WIDTH,
       yPosition: CANVAS_HEIGHT - 175,
     };
+
+    this.game = game;
 
     this.xLocation = 70;
     this.wLocation = 150;
@@ -19,12 +22,10 @@ export class Monsters extends Sprite {
     this.isMonsterOut = false;
     this.isMonsterKilled = false;
     this.isNotAttacking = false;
-    this.isAttacked = false;
-    this.isAttacking = false;
 
     this.setState = "";
 
-    this.speed = Math.floor(Math.random() * 3) + 1;
+    this.speed = Math.floor(Math.random() * 5) + 2;
     this.lives = 100;
 
     this.switchSprite("Walk");
@@ -32,6 +33,28 @@ export class Monsters extends Sprite {
     this.stopIdleSound = false;
     this.stopDeadSound = false;
     this.stopAttackSound = false;
+
+    this.tickMonster = Math.floor(Math.random() * 500) + 100;
+  }
+
+  monstersAppears() {
+    this.tickMonster--;
+
+    if (this.tickMonster <= 0 && !this.game.boss.isBossDead) {
+      this.tickMonster = Math.floor(Math.random() * 400) + 100;
+
+      if (!this.game.isFinal) this.game.monsters.push(new Monsters());
+    }
+  }
+
+  bonesAppears() {
+    this.tickMonster--;
+
+    if (this.tickMonster <= 0 && !this.game.boss.isBossDead) {
+      this.tickMonster = Math.floor(Math.random() * 400) + 100;
+
+      this.game.bones.push(new SpiritBombs(MONSTERDB, CANVAS_WIDTH, 450, false, "bone"));
+    }
   }
 
   healthBar() {

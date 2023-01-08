@@ -1,6 +1,6 @@
 @font-face {
   font-family: Ghost;
-  src: url(/src/fonts/ghost_Nest.ttf);
+  src: url(../src/fonts/ghost_Nest.ttf);
 }
 
 * {
@@ -174,7 +174,7 @@ button:hover {
 .footer {
   position: relative;
   bottom: 0;
-  background-image: url('/src/img/background/background1.png');
+  background-image: url('../src/img/background/background1.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: bottom left;

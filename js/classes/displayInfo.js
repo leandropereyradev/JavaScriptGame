@@ -24,6 +24,7 @@ export class DisplayInfo {
       document.fonts.add(font);
     });
   }
+  
   displaying() {
     CTX.fillStyle = "white";
     CTX.font = "40px ghost";

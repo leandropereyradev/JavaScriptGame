@@ -4,11 +4,13 @@ import { Sprite } from "./sprite.js";
 import { sounds } from "../utils/sounds.js";
 
 export class Boss extends Sprite {
-  constructor() {
+  constructor(game) {
     super();
 
+    this.game = game;
+
     this.position = {
-      xPosition: CANVAS_WIDTH + 400,
+      xPosition: CANVAS_WIDTH,
       yPosition: -80,
     };
 
@@ -20,7 +22,6 @@ export class Boss extends Sprite {
     this.yLocation = 350;
 
     this.isAttacking = false;
-    this.isAttacked = false;
     this.isBossAppear = false;
     this.isBossDead = false;
 
@@ -38,6 +39,33 @@ export class Boss extends Sprite {
     this.healthBar();
     this.movement();
     this.statesMonster();
+  }
+
+  bossAppear() {
+    if (this.game.batFreed >= 20 || this.game.monstersKilled >= 20) {
+      this.game.isFinal = true;
+
+      if (!this.bossSoundFinal) {
+        sounds.backgoundSound.stop();
+        sounds.backgoundSoundBattle.play();
+        this.bossSoundFinal = true;
+      }
+
+      if (!this.game.monsters.length && !this.game.bats.length) {
+        this.isBossAppear = true;
+
+        setTimeout(() => {
+          this.game.decorations.backGrounds.forEach((bg) => {
+            if (bg.controled) bg.speed = 0;
+          });
+        }, 3500);
+
+        this.draw();
+        this.healthBar();
+        this.movement();
+        this.statesMonster();
+      }
+    }
   }
 
   healthBar() {
@@ -84,10 +112,7 @@ export class Boss extends Sprite {
       sounds.bossWalk.stop();
     }
 
-    if (this.isBossAppear && !this.bossSoundFinal) {
-      sounds.backgoundSound.stop();
-      sounds.backgoundSoundBattle.play();
-      this.bossSoundFinal = true;
+    if (this.isBossDead) {
     }
   }
 

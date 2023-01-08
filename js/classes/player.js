@@ -6,13 +6,13 @@ import { SpiritBombs } from "./spiritBombs.js";
 import { Sprite } from "./sprite.js";
 
 export class Player extends Sprite {
-  constructor() {
+  constructor(game) {
     super();
+    this.game = game;
     this.position = { xPosition: 60, yPosition: 400 };
     this.right = true;
     this.states = PLAYERDBR;
 
-    this.key = "";
     this.width = 60;
     this.height = 80;
 
@@ -35,7 +35,9 @@ export class Player extends Sprite {
 
   charAnimations() {
     this.draw();
+
     this.movement();
+
     this.spiritBombs.forEach((bomb) => {
       bomb.draw();
       bomb.move();
@@ -49,56 +51,54 @@ export class Player extends Sprite {
   }
 
   playerAttack() {
-    const x = this.right ? this.position.xPosition : this.position.xPosition;
+    const x = this.right ? this.position.xPosition + 60 : this.position.xPosition;
     const y = this.position.yPosition + 40;
+
     const spiritBomb = new SpiritBombs(PLAYERDBR, x, y, this.right, "bomb");
+
     this.spiritBombs.push(spiritBomb);
   }
 
   movement() {
     if (!this.isDead && !this.isWinner) {
-      switch (this.key) {
-        case "ArrowRight":
-          this.right = true;
-          this.switchSprite("Run");
-          this.speed = 5;
-          break;
-        case "ArrowLeft":
-          this.right = false;
-          this.switchSprite("Run");
-          this.speed = -5;
-          break;
-        case "Control":
-          this.switchSprite("Attack");
-          setTimeout(() => {
-            this.key = "";
-          }, 400);
-          break;
-        case " ":
-          if (this.onFloor()) {
-            this.switchSprite("Idle");
-            this.yVertical = -17;
-          }
-          break;
-        case "":
-          if (this.takedHit) {
-            this.switchSprite("TakeHits");
-            sounds.playerHurts.play();
+      if (this.game.keys.includes("ArrowRight")) {
+        this.right = true;
 
-            setTimeout(() => {
-              this.takedHit = false;
-            }, 500);
-          } else {
-            this.switchSprite("Idle");
-            this.speed = 0;
-          }
-          break;
+        this.switchSprite("Run");
+
+        this.speed = 5;
+      } else if (this.game.keys.includes("ArrowLeft")) {
+        this.right = false;
+
+        this.switchSprite("Run");
+
+        this.speed = -5;
+      } else if (this.game.keys.includes("Control")) {
+        this.switchSprite("Attack");
+      } else if (this.game.keys.includes(" ")) {
+        if (this.onFloor()) {
+          this.switchSprite("Idle");
+          this.yVertical = -17;
+        }
+      } else if (!this.game.keys.length) {
+        if (this.takedHit) {
+          this.switchSprite("TakeHits");
+          sounds.playerHurts.play();
+
+          setTimeout(() => {
+            this.takedHit = false;
+          }, 500);
+        } else {
+          this.switchSprite("Idle");
+
+          this.speed = 0;
+        }
       }
 
       this.position.xPosition += this.speed;
       this.position.yPosition += this.yVertical;
     } else {
-      if (this.key === "r") {
+      if (this.game.keys.includes("r")) {
         this.isDead = false;
         this.lives = 1;
         this.speed = 0;
@@ -110,7 +110,7 @@ export class Player extends Sprite {
       this.switchSprite("Run");
       this.yVertical += this.gravity;
 
-      if (this.key === "Control" && !this.isWinner) this.switchSprite("Attack");
+      if (this.game.keys.includes("Control") && !this.isWinner) this.switchSprite("Attack");
     } else {
       this.yVertical = 0;
     }
